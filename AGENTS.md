@@ -2,8 +2,8 @@
 
 Language:
 
-- English: `AGENTS.md`
-- 中文: `AGENTS.zh-CN.md`
+- [English](AGENTS.md)
+- [中文](AGENTS.zh-CN.md)
 
 This repository is an AI-friendly scaffold project. Agent work in this repository should optimize for explicit structure, low ambiguity, and reusable conventions.
 

@@ -2,8 +2,8 @@
 
 Language:
 
-- English: `README.md`
-- 中文: `README.zh-CN.md`
+- [English](README.md)
+- [中文](README.zh-CN.md)
 
 AgentSkeleton is an AI-first project scaffold for building and maintaining software with agent collaboration in mind.
 

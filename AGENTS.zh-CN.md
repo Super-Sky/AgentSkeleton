@@ -2,8 +2,8 @@
 
 语言版本：
 
-- English: `AGENTS.md`
-- 中文: `AGENTS.zh-CN.md`
+- [English](AGENTS.md)
+- [中文](AGENTS.zh-CN.md)
 
 这个仓库是一个 AI 友好的脚手架项目。agent 在本仓库中的工作应优先保证结构清晰、约束显式、规则可复用。
 

@@ -2,8 +2,8 @@
 
 Language:
 
-- English: `CLAUDE.md`
-- 中文: `CLAUDE.zh-CN.md`
+- [English](CLAUDE.md)
+- [中文](CLAUDE.zh-CN.md)
 
 This repository supports Claude Code as one of the expected agent workflows.
 

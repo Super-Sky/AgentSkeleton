@@ -2,8 +2,8 @@
 
 语言版本：
 
-- English: `CLAUDE.md`
-- 中文: `CLAUDE.zh-CN.md`
+- [English](CLAUDE.md)
+- [中文](CLAUDE.zh-CN.md)
 
 这个仓库将 Claude Code 作为预期支持的 agent 工作流之一。
 

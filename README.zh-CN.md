@@ -2,8 +2,8 @@
 
 语言版本：
 
-- English: `README.md`
-- 中文: `README.zh-CN.md`
+- [English](README.md)
+- [中文](README.zh-CN.md)
 
 AgentSkeleton 是一个 AI-first 的项目脚手架，用于帮助团队以 agent 友好的方式构建和维护软件项目。
 
