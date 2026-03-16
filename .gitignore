@@ -1,0 +1,33 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Build outputs and caches
+dist/
+build/
+coverage/
+tmp/
+temp/
+.cache/
+
+# Language-specific common outputs
+node_modules/
+bin/
+vendor/
+
