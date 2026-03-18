@@ -22,6 +22,8 @@ func Run(args []string) error {
 		return runNext(args[1:])
 	case "response":
 		return runResponse(args[1:])
+	case "prompt":
+		return runPrompt(args[1:])
 	case "help", "-h", "--help":
 		return printUsage()
 	default:
@@ -46,6 +48,7 @@ Usage:
   agentskeleton plan [flags]
   agentskeleton next [flags]
   agentskeleton response [flags]
+  agentskeleton prompt [flags]
 
 Flags:
   --context <path>   Override context file path

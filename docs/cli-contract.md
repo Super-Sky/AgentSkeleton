@@ -65,6 +65,7 @@ Initial command areas:
 - `init-docs`
 - `reshape-docs`
 - `response`
+- `prompt`
 
 This contract defines `plan` and `next` first.
 
@@ -203,6 +204,19 @@ Validate host-model responses, evaluate retry decisions, and optionally apply ac
   - write answers into `.agentskeleton/context.yaml`
   - remove answered question from `open_questions`
   - optionally mark docs as generated
+
+## `prompt`
+
+### Purpose
+
+Generate host-model prompt text from current context, including initial prompts and repair prompts.
+
+### Expected Behavior
+
+- read `.agentskeleton/context.yaml`
+- in `initial` mode, generate a schema-constrained prompt for current open questions
+- in `repair` mode, include validation errors and request strict structural repair
+- return prompt text in a structured wrapper for downstream use
 
 ## Output Format Policy
 

@@ -65,6 +65,7 @@ conversation:
 - `init-docs`
 - `reshape-docs`
 - `response`
+- `prompt`
 
 这个协议优先定义 `plan` 和 `next`。
 
@@ -203,6 +204,19 @@ questions:
   - 更新 `.agentskeleton/context.yaml`
   - 将已回答问题从 `open_questions` 移除
   - 可选将文档标记为已生成
+
+## `prompt`
+
+### 目的
+
+基于当前上下文生成宿主模型提示词，包括初始提示和修复提示。
+
+### 预期行为
+
+- 读取 `.agentskeleton/context.yaml`
+- 在 `initial` 模式下，为当前 `open_questions` 生成 schema 约束提示词
+- 在 `repair` 模式下，附带校验错误并要求模型仅修复结构
+- 以结构化包裹返回 prompt 文本，方便下游使用
 
 ## 输出格式策略
 

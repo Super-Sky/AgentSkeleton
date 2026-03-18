@@ -107,6 +107,8 @@ The CLI is expected to become the main entry point for users. Initial command ar
 - `reshape-docs`: guide an existing project through documentation reshaping
 - `plan`: summarize what documents should exist next
 - `next`: provide the next structured questions for the conversation
+- `response`: validate/evaluate model output and optionally apply accepted answers
+- `prompt`: generate initial or repair prompts from context
 
 See `docs/agent-prompts.md` for the host-model prompt expectations so structured retries work.
 

@@ -301,3 +301,63 @@ func TestRunResponseApplyInvalidDoesNotUpdateContext(t *testing.T) {
 		t.Fatalf("context should not change on invalid response")
 	}
 }
+
+func TestRunPromptInitial(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"project_summary", "deployment_shape"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+
+	err := runPrompt([]string{
+		"--context", contextPath,
+		"--mode", "initial",
+		"--format", "yaml",
+	})
+	if err != nil {
+		t.Fatalf("runPrompt() error = %v", err)
+	}
+}
+
+func TestRunPromptRepairRequiresErrors(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"project_summary"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+
+	err := runPrompt([]string{
+		"--context", contextPath,
+		"--mode", "repair",
+		"--format", "yaml",
+	})
+	if err == nil {
+		t.Fatalf("runPrompt() expected error in repair mode without --errors")
+	}
+}
