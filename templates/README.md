@@ -4,12 +4,12 @@ This directory stores documentation blueprints maintained by AgentSkeleton.
 
 ## Available Templates
 
-### `shopping-mall-go-service`
+### `shopping-mall-doc-blueprint`
 
 - Type: documentation blueprint
 - Domain example: shopping mall platform
 - Purpose: sanitized example of how a domain-specific documentation pack may be organized
-- Entry: `templates/shopping-mall-go-service/template.yaml`
+- Entry: `templates/shopping-mall-doc-blueprint/template.yaml`
 
 ## Notes
 

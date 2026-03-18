@@ -7,7 +7,7 @@ description: >
 language: markdown
 type: documentation
 entrypoint: README.md
-template_version: 0.1.0
+template_version: 0.0.0
 
 variables:
   - key: project_name
@@ -25,6 +25,9 @@ variables:
   - key: documentation_priority
     description: Main documentation priority
     default: repository clarity and agent collaboration
+  - key: release_version
+    description: Initial release documentation version
+    default: v0.0.0
 
 outputs:
   - path: README.md
@@ -33,13 +36,37 @@ outputs:
     template: files/AGENTS.md.tmpl
   - path: CLAUDE.md
     template: files/CLAUDE.md.tmpl
+  - path: docs/README.md
+    template: files/docs/README.md.tmpl
   - path: docs/architecture.md
     template: files/docs/architecture.md.tmpl
+  - path: docs/code-style-guide.md
+    template: files/docs/code-style-guide.md.tmpl
+  - path: docs/doc-templates.md
+    template: files/docs/doc-templates.md.tmpl
   - path: docs/domain-overview.md
     template: files/docs/domain-overview.md.tmpl
   - path: docs/document-map.md
     template: files/docs/document-map.md.tmpl
+  - path: docs/repo-workflow-guide.md
+    template: files/docs/repo-workflow-guide.md.tmpl
   - path: docs/roadmap.md
     template: files/docs/roadmap.md.tmpl
   - path: docs/constraints.md
     template: files/docs/constraints.md.tmpl
+  - path: docs/task-delivery-guide.md
+    template: files/docs/task-delivery-guide.md.tmpl
+  - path: docs/task-execution-template.md
+    template: files/docs/task-execution-template.md.tmpl
+  - path: docs/legacy-reshape-guide.md
+    template: files/docs/legacy-reshape-guide.md.tmpl
+  - path: docs/legacy-structure-inventory.md
+    template: files/docs/legacy-structure-inventory.md.tmpl
+  - path: docs/{{release_version}}/README.md
+    template: files/docs/versioned/README.md.tmpl
+  - path: docs/{{release_version}}/features/README.md
+    template: files/docs/versioned/features/README.md.tmpl
+  - path: docs/{{release_version}}/features/feature-template.md
+    template: files/docs/versioned/features/feature-template.md.tmpl
+  - path: docs/{{release_version}}/features/review-checklist-template.md
+    template: files/docs/versioned/features/review-checklist-template.md.tmpl

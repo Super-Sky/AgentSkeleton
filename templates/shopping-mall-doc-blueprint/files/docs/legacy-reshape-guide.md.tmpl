@@ -1,0 +1,38 @@
+# Legacy Reshape Guide
+
+## Goal
+
+This document explains how to reshape an existing repository into an AI-friendly documentation structure without forcing an immediate code reorganization.
+
+## Step 1: Inventory Current State
+
+- identify top-level directories
+- identify the current entry documents, if any
+- identify undocumented but important workflows
+- identify legacy naming or versioning patterns already in use
+
+## Step 2: Explain Before Replacing
+
+- document the current structure first
+- explain what each major area is for
+- record terminology that current maintainers already use
+- avoid renaming or relocating code structure in the first pass
+
+## Step 3: Fill Critical Gaps
+
+Prioritize:
+
+- repository summary
+- agent collaboration rules
+- domain overview
+- architecture summary
+- workflow and task-delivery rules
+
+## Step 4: Introduce Versioned Task Documents
+
+- add versioned `features/` documentation only where active work benefits from it
+- do not backfill every historical task unless there is a clear maintenance value
+
+## Rule
+
+Reshape documentation to match the repository as it exists, then recommend structural cleanup only after the repository is understandable.

@@ -38,10 +38,18 @@ shopping-mall-doc-blueprint/
     ├── CLAUDE.md.tmpl
     ├── README.md.tmpl
     ├── docs/architecture.md.tmpl
+    ├── docs/code-style-guide.md.tmpl
     ├── docs/constraints.md.tmpl
+    ├── docs/doc-templates.md.tmpl
     ├── docs/document-map.md.tmpl
     ├── docs/domain-overview.md.tmpl
-    └── docs/roadmap.md.tmpl
+    ├── docs/repo-workflow-guide.md.tmpl
+    ├── docs/roadmap.md.tmpl
+    ├── docs/task-delivery-guide.md.tmpl
+    ├── docs/task-execution-template.md.tmpl
+    ├── docs/legacy-reshape-guide.md.tmpl
+    ├── docs/legacy-structure-inventory.md.tmpl
+    └── docs/versioned/
 ```
 
 ## 建模说明
@@ -53,6 +61,9 @@ shopping-mall-doc-blueprint/
 - 面向新读者和模型的领域说明
 - 用于解释仓库文档意图的文档地图
 - 架构、路线图和约束文档
+- 工作流、交付规范和执行模板文档
+- 版本化 feature 文档结构
+- 老项目文档化重塑流程
 
 ## 结构策略
 

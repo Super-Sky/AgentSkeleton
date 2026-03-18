@@ -1,0 +1,38 @@
+# Repository Workflow Guide
+
+## Goal
+
+This document defines how repository work is split, tracked, and committed.
+
+## Branching
+
+- stable branch: `master` or `main`
+- feature branch: `feat/<topic>-<JIRA>`
+- bugfix branch: `bugfix/<topic>-<JIRA>`
+- hotfix branch: `hotfix/<topic>-<JIRA>`
+
+## Commit Convention
+
+Use a Jira-style identifier in commit messages.
+
+Format:
+
+```text
+type [AG-000]: short description
+```
+
+## Work Split
+
+- task-specific work should stay with its task documentation
+- repository governance work should be committed separately
+- do not mix feature work and governance work by default
+
+## Governance Assets
+
+Governance work typically affects:
+
+- `README.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `docs/*.md`
+- skill integration and workflow documents

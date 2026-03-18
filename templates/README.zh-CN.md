@@ -4,12 +4,12 @@
 
 ## 当前可用模板
 
-### `shopping-mall-go-service`
+### `shopping-mall-doc-blueprint`
 
 - 类型：文档蓝图
 - 示例领域：购物商场平台
 - 用途：展示特定领域文档包应如何组织的脱敏示例
-- 入口：`templates/shopping-mall-go-service/template.yaml`
+- 入口：`templates/shopping-mall-doc-blueprint/template.yaml`
 
 ## 约束说明
 

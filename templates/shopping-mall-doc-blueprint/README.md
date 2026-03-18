@@ -38,10 +38,18 @@ shopping-mall-doc-blueprint/
     ├── CLAUDE.md.tmpl
     ├── README.md.tmpl
     ├── docs/architecture.md.tmpl
+    ├── docs/code-style-guide.md.tmpl
     ├── docs/constraints.md.tmpl
+    ├── docs/doc-templates.md.tmpl
     ├── docs/document-map.md.tmpl
     ├── docs/domain-overview.md.tmpl
-    └── docs/roadmap.md.tmpl
+    ├── docs/repo-workflow-guide.md.tmpl
+    ├── docs/roadmap.md.tmpl
+    ├── docs/task-delivery-guide.md.tmpl
+    ├── docs/task-execution-template.md.tmpl
+    ├── docs/legacy-reshape-guide.md.tmpl
+    ├── docs/legacy-structure-inventory.md.tmpl
+    └── docs/versioned/
 ```
 
 ## Modeling Notes
@@ -53,6 +61,9 @@ This template keeps only the documentation patterns worth reusing:
 - domain overview for new readers and models
 - document map to explain repository documentation intent
 - architecture, roadmap, and constraints documents
+- workflow, delivery, and execution guidance documents
+- versioned feature-document structure
+- legacy-project documentation reshaping flow
 
 ## Structure Policy
 
