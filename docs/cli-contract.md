@@ -64,6 +64,7 @@ Initial command areas:
 - `next`
 - `init-docs`
 - `reshape-docs`
+- `response`
 
 This contract defines `plan` and `next` first.
 
@@ -186,6 +187,22 @@ Initialize a documentation reshaping session for an existing repository.
 - set `project.mode` to `legacy`
 - set `structure.strategy` to `existing`
 - seed a structure-inventory-first plan
+
+## `response`
+
+### Purpose
+
+Validate host-model responses, evaluate retry decisions, and optionally apply accepted answers into context state.
+
+### Expected Behavior
+
+- parse response envelope from YAML/JSON
+- run schema validation
+- evaluate retry decision (`accept`, `retry`, `unresolved`)
+- only when `accept` and `--apply` are set:
+  - write answers into `.agentskeleton/context.yaml`
+  - remove answered question from `open_questions`
+  - optionally mark docs as generated
 
 ## Output Format Policy
 

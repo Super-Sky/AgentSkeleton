@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"gopkg.in/yaml.v3"
 )
@@ -87,4 +88,51 @@ func validateMode(mode string) error {
 	default:
 		return errors.New("project.mode must be new or legacy")
 	}
+}
+
+func (c *Context) applyAnswer(questionID, value string) {
+	if questionID == "" {
+		return
+	}
+
+	replaced := false
+	for i := range c.Conversation.AnsweredQuestions {
+		if c.Conversation.AnsweredQuestions[i].ID == questionID {
+			c.Conversation.AnsweredQuestions[i].Value = value
+			replaced = true
+			break
+		}
+	}
+	if !replaced {
+		c.Conversation.AnsweredQuestions = append(c.Conversation.AnsweredQuestions, QuestionAnswer{
+			ID:    questionID,
+			Value: value,
+		})
+	}
+	c.Conversation.OpenQuestions = removeString(c.Conversation.OpenQuestions, questionID)
+}
+
+func (c *Context) markGenerated(paths []string) {
+	for _, p := range paths {
+		if p == "" {
+			continue
+		}
+		if !slices.Contains(c.Documentation.GeneratedDocs, p) {
+			c.Documentation.GeneratedDocs = append(c.Documentation.GeneratedDocs, p)
+		}
+		c.Documentation.MissingDocs = removeString(c.Documentation.MissingDocs, p)
+	}
+}
+
+func removeString(items []string, target string) []string {
+	if target == "" {
+		return items
+	}
+	out := make([]string, 0, len(items))
+	for _, it := range items {
+		if it != target {
+			out = append(out, it)
+		}
+	}
+	return out
 }

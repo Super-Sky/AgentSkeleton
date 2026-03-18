@@ -64,6 +64,7 @@ conversation:
 - `next`
 - `init-docs`
 - `reshape-docs`
+- `response`
 
 这个协议优先定义 `plan` 和 `next`。
 
@@ -186,6 +187,22 @@ questions:
 - 将 `project.mode` 设置为 `legacy`
 - 将 `structure.strategy` 设置为 `existing`
 - 初始化一份“先盘点结构”的文档计划
+
+## `response`
+
+### 目的
+
+校验宿主模型返回、评估重试决策，并在满足条件时把合法答案写回上下文。
+
+### 预期行为
+
+- 从 YAML/JSON 解析返回包络
+- 进行 schema 校验
+- 评估决策（`accept`、`retry`、`unresolved`）
+- 仅在 `accept` 且指定 `--apply` 时：
+  - 更新 `.agentskeleton/context.yaml`
+  - 将已回答问题从 `open_questions` 移除
+  - 可选将文档标记为已生成
 
 ## 输出格式策略
 

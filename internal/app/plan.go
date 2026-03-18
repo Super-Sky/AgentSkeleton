@@ -44,16 +44,16 @@ func runPlan(args []string) error {
 	}
 
 	out := PlanOutput{
-		Command:              "plan",
-		ProjectMode:          ctx.Project.Mode,
-		DocumentationPhase:   ctx.Documentation.Phase,
-		ReleaseVersion:       ctx.Documentation.ReleaseVersion,
-		KnownFacts:           buildKnownFacts(ctx),
-		MissingInformation:   append([]string{}, ctx.Conversation.OpenQuestions...),
+		Command:            "plan",
+		ProjectMode:        ctx.Project.Mode,
+		DocumentationPhase: ctx.Documentation.Phase,
+		ReleaseVersion:     ctx.Documentation.ReleaseVersion,
+		KnownFacts:         buildKnownFacts(ctx),
+		MissingInformation: append([]string{}, ctx.Conversation.OpenQuestions...),
 		RecommendedDocuments: append(
 			recommendedDocumentsForMode(ctx.Project.Mode),
 			versionedDocuments(ctx.Documentation.ReleaseVersion)...),
-		NextActions:          nextActionsForMode(ctx.Project.Mode),
+		NextActions: nextActionsForMode(ctx.Project.Mode),
 	}
 
 	return printOutput(*format, out)
