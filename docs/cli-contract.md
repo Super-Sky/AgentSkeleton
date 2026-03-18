@@ -17,6 +17,7 @@ The CLI is not responsible for writing complete repository documents by itself. 
 - Host models such as Codex and Claude Code are expected to consume the CLI output.
 - The CLI should return structured, stable, machine-friendly output.
 - Human-readable formatting may exist, but structured output is the baseline contract.
+- Host-model responses should also be validated against a structured contract before they are reused.
 
 ## Context File
 
@@ -199,6 +200,60 @@ Recommended formats:
 
 - `yaml`
 - `json`
+
+## Host-Model Response Policy
+
+The CLI output alone is not enough. The product must also assume that host-model responses may be malformed, incomplete, or partially off-schema.
+
+### Rule
+
+No host-model response should be accepted into the next step unless it passes schema validation.
+
+### Required Flow
+
+1. CLI emits structured guidance and an expected response shape.
+2. Host model returns a proposed structured answer.
+3. The product validates the response against the expected schema.
+4. If validation fails, the product returns a targeted retry prompt.
+5. Retry continues until:
+   - the response becomes valid, or
+   - the retry budget is exhausted
+6. If retries are exhausted, the product should fall back to a safe unresolved-state output.
+
+### Retry Requirements
+
+- Retries should explain exactly what failed.
+- Retries should ask the model to repair structure, not re-answer everything from scratch unless necessary.
+- Validation errors should be machine-readable where possible.
+- The retry loop should be bounded.
+
+Recommended initial retry budget:
+
+- `2` automatic retries
+- `1` final fallback result if the model still fails schema validation
+
+### Fallback Behavior
+
+If the response still fails after retries, the product should:
+
+- mark the response as unresolved
+- preserve the raw model output for inspection if safe
+- avoid writing invalid structured state into `.agentskeleton/context.yaml`
+- return a next step that asks for clarification or manual intervention
+
+## Expected Response Envelope
+
+The product should eventually define a common envelope for host-model responses, for example:
+
+```yaml
+status: ok | invalid | unresolved
+schema: question-answer-set-v1
+data: {}
+errors: []
+raw_text: ""
+```
+
+This envelope is intended to make retries and downstream handling deterministic.
 
 ## Non-Goals
 

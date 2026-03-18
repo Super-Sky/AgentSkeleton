@@ -66,3 +66,57 @@ func TestLoadContextFixtures(t *testing.T) {
 		})
 	}
 }
+
+func TestResponseEnvelopeValidate(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		input   ResponseEnvelope
+		wantErr bool
+	}{
+		{
+			name: "ok",
+			input: ResponseEnvelope{
+				Status: "ok",
+				Schema: "question-answer-set-v1",
+				Data: map[string]any{
+					"project_summary": "MallHub summary",
+				},
+			},
+		},
+		{
+			name: "invalid requires errors",
+			input: ResponseEnvelope{
+				Status: "invalid",
+			},
+			wantErr: true,
+		},
+		{
+			name: "unresolved with raw text",
+			input: ResponseEnvelope{
+				Status:  "unresolved",
+				RawText: "free-form answer that could not be normalized",
+			},
+		},
+		{
+			name: "bad status",
+			input: ResponseEnvelope{
+				Status: "broken",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.input.Validate()
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

@@ -1,0 +1,7 @@
+status: ok
+schema: question-answer-set-v1
+data:
+  project_summary: AI-friendly shopping mall platform for operations and merchant collaboration
+  deployment_shape: web platform with management backend and supporting services
+errors: []
+raw_text: ""

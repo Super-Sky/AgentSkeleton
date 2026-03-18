@@ -1,0 +1,7 @@
+status: invalid
+schema: question-answer-set-v1
+data: {}
+errors:
+  - missing required field: project_summary
+  - missing required field: deployment_shape
+raw_text: ""

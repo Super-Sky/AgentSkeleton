@@ -1,0 +1,8 @@
+status: unresolved
+schema: question-answer-set-v1
+data: {}
+errors:
+  - response could not be normalized after retry budget was exhausted
+raw_text: |
+  I think the project is some kind of mall platform, but I cannot provide the
+  structured fields exactly as requested.

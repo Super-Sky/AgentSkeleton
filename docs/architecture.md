@@ -24,6 +24,13 @@ The project should support both Codex and Claude Code through:
 - The CLI outputs structured prompts, plans, and document expectations.
 - The host model turns those outputs into actual repository documents.
 
+## Response Normalization
+
+- Host-model output should be treated as untrusted until it passes schema validation.
+- The product should validate structured responses before writing them into context state.
+- Invalid responses should enter a bounded retry loop with targeted repair prompts.
+- If retries fail, the product should preserve an unresolved state instead of corrupting structured context.
+
 ## Repository Structure Handling
 
 - For new projects, AgentSkeleton may recommend a default structure to make documentation and collaboration easier.
