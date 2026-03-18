@@ -1,0 +1,24 @@
+command: prompt
+mode: initial
+schema: question-answer-set-v1
+questions:
+  - project_summary
+  - deployment_shape
+  - ownership_model
+prompt_text: |
+  Based on this context, answer only the missing fields.
+  
+  Missing fields:
+  - project_summary
+  - deployment_shape
+  - ownership_model
+  
+  Respond with this envelope:
+  status: ok
+  schema: question-answer-set-v1
+  data:
+    project_summary: ""
+    deployment_shape: ""
+    ownership_model: ""
+  errors: []
+  raw_text: ""

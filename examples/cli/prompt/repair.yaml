@@ -1,0 +1,25 @@
+command: prompt
+mode: repair
+schema: question-answer-set-v1
+questions:
+  - project_summary
+  - deployment_shape
+prompt_text: |
+  Your last response failed schema validation. Repair structure only.
+  
+  Validation errors:
+  - missing required field: project_summary
+  - missing required field: deployment_shape
+  
+  Open questions to repair:
+  - project_summary
+  - deployment_shape
+  
+  Respond again with this envelope:
+  status: ok
+  schema: question-answer-set-v1
+  data:
+    project_summary: ""
+    deployment_shape: ""
+  errors: []
+  raw_text: ""
