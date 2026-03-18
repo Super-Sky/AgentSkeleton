@@ -111,6 +111,7 @@ CLI 预期会成为用户的主要入口。首批命令方向包括：
 - `prompt`：基于上下文生成初始提示或修复提示
 
 请参考 `docs/agent-prompts.zh-CN.md`，了解宿主模型如何消费这些输出并进行重试。
+请参考 `docs/cli-runbook.zh-CN.md` 查看完整命令链路。
 
 当前仓库已经包含第一版最小 CLI 骨架，位于 `cmd/agentskeleton`，输出协议定义见 `docs/cli-contract.zh-CN.md`。
 
