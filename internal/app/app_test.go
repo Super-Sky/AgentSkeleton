@@ -120,3 +120,59 @@ func TestResponseEnvelopeValidate(t *testing.T) {
 		})
 	}
 }
+
+func TestEvaluateResponse(t *testing.T) {
+	t.Parallel()
+
+	policy := DefaultRetryPolicy()
+
+	tests := []struct {
+		name     string
+		attempt  int
+		response ResponseEnvelope
+		want     RetryDecision
+	}{
+		{
+			name:    "accept valid response",
+			attempt: 0,
+			response: ResponseEnvelope{
+				Status: "ok",
+				Schema: "question-answer-set-v1",
+				Data: map[string]any{
+					"project_summary": "MallHub summary",
+				},
+			},
+			want: RetryDecisionAccept,
+		},
+		{
+			name:    "retry invalid response",
+			attempt: 1,
+			response: ResponseEnvelope{
+				Status: "invalid",
+				Errors: []string{"missing project_summary"},
+			},
+			want: RetryDecisionRetry,
+		},
+		{
+			name:    "unresolved after retry budget",
+			attempt: 2,
+			response: ResponseEnvelope{
+				Status: "invalid",
+				Errors: []string{"missing project_summary"},
+			},
+			want: RetryDecisionUnresolved,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := EvaluateResponse(policy, tt.attempt, tt.response)
+			if got.Decision != tt.want {
+				t.Fatalf("Decision = %q, want %q", got.Decision, tt.want)
+			}
+		})
+	}
+}

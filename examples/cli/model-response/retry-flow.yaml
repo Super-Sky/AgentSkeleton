@@ -1,0 +1,15 @@
+policy:
+  max_automatic_retries: 2
+flow:
+  - attempt: 0
+    status: invalid
+    decision: retry
+    note: ask the model to repair the missing fields only
+  - attempt: 1
+    status: invalid
+    decision: retry
+    note: return validation errors again with a stricter structure reminder
+  - attempt: 2
+    status: invalid
+    decision: unresolved
+    note: stop automatic retries and preserve unresolved state
