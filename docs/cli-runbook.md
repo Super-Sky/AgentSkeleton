@@ -40,6 +40,27 @@ agentskeleton response \
 agentskeleton next --context .agentskeleton/context.yaml --format yaml
 ```
 
+## One-Command Flow
+
+You can run one bundled step with:
+
+```bash
+agentskeleton workflow --context .agentskeleton/context.yaml --format yaml
+```
+
+If you already have a host-model response:
+
+```bash
+agentskeleton workflow \
+  --context .agentskeleton/context.yaml \
+  --response-file /path/to/host-response.yaml \
+  --attempt 0 \
+  --apply \
+  --question project_summary \
+  --docs README.md,docs/domain-overview.md \
+  --format yaml
+```
+
 ## Retry Loop
 
 If `agentskeleton response` returns `decision: retry`:

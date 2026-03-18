@@ -1,0 +1,36 @@
+command: workflow
+context_path: .agentskeleton/context.yaml
+plan:
+  command: plan
+  project_mode: new
+  documentation_phase: discovery
+  release_version: v0.0.0
+  known_facts:
+    - key: project_name
+      value: MallHub
+  missing_information:
+    - project_summary
+  recommended_documents:
+    - path: README.md
+      purpose: repository entrypoint and project summary
+      status: required
+  next_actions:
+    - ask for a one-sentence project summary
+prompt:
+  command: prompt
+  mode: initial
+  schema: question-answer-set-v1
+  questions:
+    - project_summary
+  prompt_text: |
+    Based on this context, answer only the missing fields.
+next:
+  command: next
+  documentation_phase: discovery
+  conversation_goal: clarify the starting documentation scope for a new project
+  questions:
+    - id: project_summary
+      prompt: What is the one-sentence summary of this project?
+      reason: The summary anchors README and domain overview drafts.
+      affects:
+        - README.md

@@ -40,6 +40,27 @@ agentskeleton response \
 agentskeleton next --context .agentskeleton/context.yaml --format yaml
 ```
 
+## 单命令流程
+
+你可以用一个命令执行打包步骤：
+
+```bash
+agentskeleton workflow --context .agentskeleton/context.yaml --format yaml
+```
+
+如果已经拿到宿主模型返回：
+
+```bash
+agentskeleton workflow \
+  --context .agentskeleton/context.yaml \
+  --response-file /path/to/host-response.yaml \
+  --attempt 0 \
+  --apply \
+  --question project_summary \
+  --docs README.md,docs/domain-overview.md \
+  --format yaml
+```
+
 ## 重试循环
 
 如果 `agentskeleton response` 返回 `decision: retry`：

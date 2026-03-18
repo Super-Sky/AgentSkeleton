@@ -361,3 +361,103 @@ func TestRunPromptRepairRequiresErrors(t *testing.T) {
 		t.Fatalf("runPrompt() expected error in repair mode without --errors")
 	}
 }
+
+func TestRunWorkflowInitial(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"project_summary", "deployment_shape"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+
+	err := runWorkflow([]string{
+		"--context", contextPath,
+		"--format", "yaml",
+	})
+	if err != nil {
+		t.Fatalf("runWorkflow() error = %v", err)
+	}
+}
+
+func TestRunWorkflowApplyAcceptedResponse(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
+	respPath := filepath.Join(root, "response.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:         "discovery",
+			GeneratedDocs: []string{},
+			MissingDocs:   []string{"README.md"},
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"project_summary"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+
+	resp := "" +
+		"status: ok\n" +
+		"schema: question-answer-set-v1\n" +
+		"data:\n" +
+		"  project_summary: workflow summary\n" +
+		"errors: []\n" +
+		"raw_text: \"\"\n"
+	if err := os.WriteFile(respPath, []byte(resp), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	err := runWorkflow([]string{
+		"--context", contextPath,
+		"--response-file", respPath,
+		"--apply",
+		"--question", "project_summary",
+		"--docs", "README.md",
+		"--format", "yaml",
+	})
+	if err != nil {
+		t.Fatalf("runWorkflow() error = %v", err)
+	}
+
+	updated, err := loadContext(contextPath)
+	if err != nil {
+		t.Fatalf("loadContext() error = %v", err)
+	}
+	if len(updated.Conversation.AnsweredQuestions) != 1 {
+		t.Fatalf("answered_questions len = %d, want 1", len(updated.Conversation.AnsweredQuestions))
+	}
+	if updated.Conversation.AnsweredQuestions[0].ID != "project_summary" {
+		t.Fatalf("answered question id = %q", updated.Conversation.AnsweredQuestions[0].ID)
+	}
+	if strings.Contains(strings.Join(updated.Conversation.OpenQuestions, ","), "project_summary") {
+		t.Fatalf("project_summary should be removed from open_questions")
+	}
+	if len(updated.Documentation.GeneratedDocs) != 1 || updated.Documentation.GeneratedDocs[0] != "README.md" {
+		t.Fatalf("generated_docs not updated: %#v", updated.Documentation.GeneratedDocs)
+	}
+}

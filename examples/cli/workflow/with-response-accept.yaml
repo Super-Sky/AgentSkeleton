@@ -1,0 +1,27 @@
+command: workflow
+context_path: .agentskeleton/context.yaml
+response_eval:
+  decision: accept
+  attempt: 0
+  remaining: 2
+  validation_errors: []
+plan:
+  command: plan
+  project_mode: new
+  documentation_phase: discovery
+  release_version: v0.0.0
+  known_facts:
+    - key: project_name
+      value: MallHub
+  missing_information:
+    - deployment_shape
+prompt:
+  command: prompt
+  mode: initial
+  schema: question-answer-set-v1
+  questions:
+    - deployment_shape
+next:
+  command: next
+  documentation_phase: discovery
+  conversation_goal: clarify the starting documentation scope for a new project

@@ -66,6 +66,7 @@ conversation:
 - `reshape-docs`
 - `response`
 - `prompt`
+- `workflow`
 
 这个协议优先定义 `plan` 和 `next`。
 
@@ -217,6 +218,23 @@ questions:
 - 在 `initial` 模式下，为当前 `open_questions` 生成 schema 约束提示词
 - 在 `repair` 模式下，附带校验错误并要求模型仅修复结构
 - 以结构化包裹返回 prompt 文本，方便下游使用
+
+## `workflow`
+
+### 目的
+
+执行一次完整引导步骤，打包 `plan`、`prompt`、`next`，并支持可选响应评估与安全写回。
+
+### 预期行为
+
+- 读取上下文
+- 可选评估 `--response-file`
+- 若 `--apply` 且决策为 `accept`，写回上下文
+- 返回：
+  - `plan` 输出
+  - `prompt` 输出
+  - `next` 输出
+  - 可选响应评估结果
 
 ## 输出格式策略
 

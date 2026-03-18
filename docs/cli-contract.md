@@ -66,6 +66,7 @@ Initial command areas:
 - `reshape-docs`
 - `response`
 - `prompt`
+- `workflow`
 
 This contract defines `plan` and `next` first.
 
@@ -217,6 +218,23 @@ Generate host-model prompt text from current context, including initial prompts 
 - in `initial` mode, generate a schema-constrained prompt for current open questions
 - in `repair` mode, include validation errors and request strict structural repair
 - return prompt text in a structured wrapper for downstream use
+
+## `workflow`
+
+### Purpose
+
+Run one full guidance step that bundles `plan`, `prompt`, and `next`, with optional response evaluation and safe context apply.
+
+### Expected Behavior
+
+- load context
+- optionally evaluate `--response-file`
+- if `--apply` and decision is `accept`, update context
+- return:
+  - `plan` output
+  - `prompt` output
+  - `next` output
+  - optional response evaluation result
 
 ## Output Format Policy
 
