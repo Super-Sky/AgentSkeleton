@@ -5,58 +5,59 @@ Language:
 - [English](README.md)
 - [中文](README.zh-CN.md)
 
-AgentSkeleton is an AI-first project scaffold for building and maintaining software with agent collaboration in mind.
+AgentSkeleton is an AI-first documentation guidance tool for building AI-friendly project structures through conversation.
 
 It is built around a simple model:
 
-- templates are the foundation
-- a CLI is the main user interface
-- both Codex and Claude Code are supported by design
+- documentation blueprints are the foundation
+- a CLI is the product core
+- Codex and Claude Code are the primary collaboration hosts
 
 It is designed for two primary use cases:
 
-- initialize new projects with a clear, agent-readable structure
-- migrate existing projects into a structure that is easier for AI tools and humans to maintain together
+- guide new projects into a clear, AI-friendly documentation structure
+- reshape existing projects into a documented structure that is easier for AI tools and humans to maintain together
 
-The repository template and bundled assets are the foundation that the CLI will generate, inspect, and maintain.
+The CLI does not replace large models. It organizes the guidance flow, captures structured context, and tells the model what documentation should exist next.
 
 ## What It Is
 
-AgentSkeleton is not a business application. It is a scaffold for project construction and maintenance.
+AgentSkeleton is not a business application. It is a documentation architecture guidance system.
 
-Its job is to make projects easier to understand, safer to evolve, and more predictable for both humans and AI agents.
+Its job is to help users build AI-friendly repository documentation through guided conversation, without touching business code.
 
 ## Goals
 
-- Provide a reusable project template as the baseline asset.
-- Deliver a CLI as the primary user-facing interface.
+- Provide reusable documentation blueprints as baseline assets.
+- Deliver a CLI as the primary product interface.
 - Support both Codex-style agent workflows and Claude Code workflows.
 - Keep the core structure shared across agent modes, with minimal adapter-specific differences.
-- Help both greenfield projects and legacy project migration.
-- Keep the project fully AI-authored, without manual source-code implementation.
+- Help both greenfield projects and legacy project documentation reshaping.
+- Keep the product focused on guidance and documentation, not business code generation.
 
 ## Core Principles
 
-- AI-first authoring
+- AI-first collaboration
 - Shared structure across agent modes
 - Explicit repository rules
 - Stable defaults before heavy customization
-- Migration support, not only greenfield setup
+- Documentation reshaping, not only greenfield setup
+- New projects may adopt recommended structures; legacy projects should document and respect the structure they already have
 
 ## Non-Goals For The First Stage
 
-- Full automation for every project type.
-- Deep language-specific generators for many stacks at once.
+- Direct business code generation.
+- Deep language-specific project scaffolding.
 - A heavy plugin system before the core workflow is proven.
 
 ## MVP Scope
 
 The first milestone focuses on definition and structure.
 
-- Project initialization for new repositories.
-- AI migration guidance for existing repositories.
-- Generation of collaboration files such as `AGENTS.md` and `CLAUDE.md`.
-- Repository structure scanning and basic diagnostics.
+- Guided documentation setup for new repositories.
+- Documentation reshaping guidance for existing repositories.
+- Generation of collaboration files such as `README.md`, `AGENTS.md`, and `CLAUDE.md`.
+- Structured question flow that tells the model what to document next.
 
 ## Supported Agent Modes
 
@@ -68,19 +69,19 @@ AgentSkeleton will support:
 The support strategy is:
 
 - One shared core structure
-- One shared template foundation
+- One shared documentation blueprint foundation
 - Small adapter-specific instruction files where required
 
 This keeps maintenance cost under control and avoids maintaining two separate project systems.
 
-## Authoring Principle
+## Product Model
 
-AgentSkeleton is intended to be built through AI collaboration rather than manual coding.
+AgentSkeleton is intended to work alongside large models rather than replacing them.
 
 The default expectation is:
 
-- no hand-written production code
-- repository changes are proposed and implemented by AI agents
+- the CLI guides the conversation and organizes context
+- Codex or Claude Code writes the actual document drafts
 - humans define goals, constraints, and acceptance standards
 
 This rule should shape both the product design and the repository workflow. See `docs/principles.md` for the full baseline.
@@ -94,7 +95,6 @@ This rule should shape both the product design and the repository workflow. See 
 ├── README.md
 ├── cmd/
 ├── docs/
-├── examples/
 ├── internal/
 └── templates/
 ```
@@ -103,10 +103,10 @@ This rule should shape both the product design and the repository workflow. See 
 
 The CLI is expected to become the main entry point for users. Initial command areas are likely to include:
 
-- `init`: create a new project from the scaffold
-- `migrate`: adapt an existing project to the scaffold
-- `generate`: create agent-facing support files
-- `scan`: inspect repository structure and report gaps
+- `init-docs`: guide a new project into an AI-friendly documentation structure
+- `reshape-docs`: guide an existing project through documentation reshaping
+- `plan`: summarize what documents should exist next
+- `next`: provide the next structured questions for the conversation
 
 ## Current Status
 
@@ -116,8 +116,18 @@ This repository is in the initial definition stage. The first push should establ
 - baseline structure
 - naming conventions
 - agent support strategy
-- CLI direction
+- CLI direction for documentation guidance
 
 ## Contributing Direction
 
 In the early phase, decisions should favor clarity, explicit conventions, and stable defaults over premature flexibility.
+
+## Commit Convention
+
+Use a Jira-style identifier in commit messages.
+
+Recommended format:
+
+- `docs [AG-001]: align product positioning and blueprint strategy`
+- `feat [AG-001]: add initial documentation guidance flow`
+- `fix [AG-001]: correct document planning output`

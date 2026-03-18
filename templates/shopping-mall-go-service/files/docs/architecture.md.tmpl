@@ -1,0 +1,27 @@
+# Architecture
+
+## Intent
+
+This project uses a documentation-first repository structure intended for mall-domain platform work.
+
+## Documentation Layers
+
+- `README.md`: entrypoint for humans and models
+- `AGENTS.md`: shared collaboration rules
+- `CLAUDE.md`: host-specific notes for Claude Code
+- `docs/domain-overview.md`: shared domain language
+- `docs/document-map.md`: explanation of document responsibilities
+- `docs/roadmap.md`: staged evolution
+- `docs/constraints.md`: explicit boundaries
+
+## Design Notes
+
+- The repository should explain itself before asking a model to infer intent from code.
+- Domain language should be generic enough to stay publishable.
+- Document responsibilities should be explicit to reduce overlap and drift.
+- This blueprint does not imply any specific code architecture.
+
+## Structure Guidance
+
+- If this is a new project, a recommended application layout such as `internal/app` may be documented here.
+- If this is an existing project, describe the structure that already exists before proposing any change.

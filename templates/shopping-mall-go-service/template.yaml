@@ -1,0 +1,45 @@
+id: shopping-mall-doc-blueprint
+name: Shopping Mall Documentation Blueprint
+description: >
+  A sanitized documentation blueprint for shopping mall platforms. It is derived
+  from reusable documentation patterns observed in a larger production project,
+  with all business-sensitive details removed and replaced by generic mall-domain examples.
+language: markdown
+type: documentation
+entrypoint: README.md
+template_version: 0.1.0
+
+variables:
+  - key: project_name
+    description: Human-readable project name
+    default: MallHub
+  - key: project_summary
+    description: One-sentence project summary
+    default: AI-friendly shopping mall platform for operations and merchant collaboration
+  - key: primary_users
+    description: Primary user groups
+    default: mall operators, store managers, merchants
+  - key: deployment_shape
+    description: High-level deployment shape
+    default: web platform with management backend and supporting services
+  - key: documentation_priority
+    description: Main documentation priority
+    default: repository clarity and agent collaboration
+
+outputs:
+  - path: README.md
+    template: files/README.md.tmpl
+  - path: AGENTS.md
+    template: files/AGENTS.md.tmpl
+  - path: CLAUDE.md
+    template: files/CLAUDE.md.tmpl
+  - path: docs/architecture.md
+    template: files/docs/architecture.md.tmpl
+  - path: docs/domain-overview.md
+    template: files/docs/domain-overview.md.tmpl
+  - path: docs/document-map.md
+    template: files/docs/document-map.md.tmpl
+  - path: docs/roadmap.md
+    template: files/docs/roadmap.md.tmpl
+  - path: docs/constraints.md
+    template: files/docs/constraints.md.tmpl

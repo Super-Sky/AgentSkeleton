@@ -22,20 +22,20 @@ Scope:
 
 - initialize Go module
 - create CLI entrypoint
-- add command stubs for `init`, `migrate`, `generate`, and `scan`
+- add command stubs for `init-docs`, `reshape-docs`, `plan`, and `next`
 
-## M2: Template Execution
+## M2: Blueprint Guidance
 
 Scope:
 
-- define template loading model
-- render project assets from templates
-- generate collaboration files through CLI workflows
+- define blueprint loading model
+- output structured guidance for repository documents
+- generate conversation-ready planning artifacts
 
 ## M3: Repository Diagnostics
 
 Scope:
 
-- scan repository structure
+- scan repository documentation structure
 - report missing conventions
-- support migration guidance for existing projects
+- support documentation reshaping for existing projects

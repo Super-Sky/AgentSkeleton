@@ -4,11 +4,11 @@
 
 AgentSkeleton is defined by a small set of non-negotiable product principles.
 
-## AI-First Authoring
+## AI-First Collaboration
 
-- Production code is expected to be authored by AI agents.
+- Large models are expected to draft repository documents.
 - Humans provide direction, constraints, review, and acceptance.
-- Manual coding is not the default operating model for this repository.
+- The product guides documentation work rather than generating business code.
 
 ## Dual-Agent Support
 
@@ -16,11 +16,24 @@ AgentSkeleton is defined by a small set of non-negotiable product principles.
 - The repository should preserve one shared structure wherever possible.
 - Agent-specific files should exist only when a real difference must be expressed.
 
-## Template-Driven Product Model
+## Documentation-Blueprint Product Model
 
-- Templates are not secondary assets. They are the core of the product.
-- The CLI exists to generate, inspect, and maintain those assets.
+- Documentation blueprints are not secondary assets. They are the core of the product.
+- The CLI exists to guide, inspect, and maintain those assets.
 - Repository structure should reflect this product model clearly.
+
+## Structure Strategy
+
+- New projects may use recommended repository patterns.
+- The preferred default for new application-style projects is an `internal/app`-oriented structure.
+- Existing projects should not be forced into a new code layout by default.
+- For legacy projects, the product should help explain and document the current structure before suggesting structural change.
+
+## CLI-Core, Host-Assisted Delivery
+
+- The product core is a CLI.
+- Codex and Claude Code are primary host environments, not the product itself.
+- The CLI should produce structured guidance that host models can immediately use.
 
 ## Explicit Repository Rules
 

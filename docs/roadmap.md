@@ -11,17 +11,17 @@
 ## Phase 2
 
 - Implement initial Go CLI skeleton
-- Add `init`, `generate`, `scan`, and `migrate` command stubs
-- Add template loading and rendering flow
+- Add `init-docs`, `reshape-docs`, `plan`, and `next` command stubs
+- Add blueprint loading and guidance flow
 
 ## Phase 3
 
-- Add repository diagnostics
-- Add migration helpers for existing projects
-- Add examples covering common project setups
+- Add repository documentation diagnostics
+- Add reshaping helpers for existing projects
+- Add conversation flows for common project states
 
 ## Phase 4
 
 - Improve extensibility
-- Validate external usage patterns
+- Validate external usage patterns inside host agent environments
 - Harden defaults for wider adoption
