@@ -1,0 +1,35 @@
+version: v0.0.0
+project:
+  name: MallHub
+  summary: AI-friendly shopping mall platform for operations and merchant collaboration
+  mode: new
+  domain: shopping mall platform
+  primary_users:
+    - mall operators
+    - store managers
+    - merchants
+  host: codex
+documentation:
+  phase: discovery
+  generated_docs: []
+  missing_docs:
+    - README.md
+    - AGENTS.md
+    - CLAUDE.md
+    - docs/domain-overview.md
+    - docs/architecture.md
+  release_version: v0.0.0
+structure:
+  strategy: recommended
+  recommended_layout: internal/app
+  current_layout_summary: ""
+conversation:
+  answered_questions:
+    - id: project_name
+      value: MallHub
+    - id: project_mode
+      value: new
+  open_questions:
+    - project_summary
+    - deployment_shape
+    - ownership_model

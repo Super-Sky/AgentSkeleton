@@ -1,0 +1,38 @@
+command: plan
+project_mode: new
+documentation_phase: discovery
+known_facts:
+  - key: project_name
+    value: MallHub
+  - key: primary_users
+    value:
+      - mall operators
+      - store managers
+      - merchants
+  - key: structure_strategy
+    value: recommended
+missing_information:
+  - project_summary
+  - deployment_shape
+  - ownership_model
+recommended_documents:
+  - path: README.md
+    purpose: repository entrypoint and project summary
+    status: required
+  - path: AGENTS.md
+    purpose: shared agent collaboration rules
+    status: required
+  - path: CLAUDE.md
+    purpose: Claude Code-specific adaptation notes
+    status: required
+  - path: docs/domain-overview.md
+    purpose: domain language for humans and models
+    status: required
+  - path: docs/architecture.md
+    purpose: describe the intended repository and system shape
+    status: required
+next_actions:
+  - ask for a one-sentence project summary
+  - ask for the deployment shape
+  - ask who owns documentation maintenance
+  - draft README.md

@@ -1,0 +1,38 @@
+version: v0.0.0
+project:
+  name: LegacyMallOps
+  summary: Existing mall operations repository being reshaped into an AI-friendly documentation structure
+  mode: legacy
+  domain: shopping mall operations
+  primary_users:
+    - platform maintainers
+    - operations team
+    - merchant support team
+  host: claude-code
+documentation:
+  phase: planning
+  generated_docs:
+    - README.md
+    - AGENTS.md
+  missing_docs:
+    - docs/domain-overview.md
+    - docs/architecture.md
+    - docs/legacy-reshape-guide.md
+    - docs/legacy-structure-inventory.md
+  release_version: v0.0.0
+structure:
+  strategy: existing
+  recommended_layout: internal/app
+  current_layout_summary: Mixed top-level modules with legacy naming and partial docs coverage
+conversation:
+  answered_questions:
+    - id: project_name
+      value: LegacyMallOps
+    - id: project_mode
+      value: legacy
+    - id: current_layout_summary
+      value: Mixed top-level modules with legacy naming and partial docs coverage
+  open_questions:
+    - undocumented_directories
+    - active_release_docs_strategy
+    - ownership_model

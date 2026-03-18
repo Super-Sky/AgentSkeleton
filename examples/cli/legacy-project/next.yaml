@@ -1,0 +1,22 @@
+command: next
+documentation_phase: planning
+conversation_goal: document the current repository before proposing reshape actions
+questions:
+  - id: undocumented_directories
+    prompt: Which top-level directories or major modules are currently undocumented?
+    reason: Legacy reshaping should begin by explaining what already exists.
+    affects:
+      - docs/legacy-structure-inventory.md
+      - docs/architecture.md
+  - id: active_release_docs_strategy
+    prompt: Does this repository need versioned feature documents for current active work?
+    reason: This determines whether docs/vX.Y.Z/features should be introduced now.
+    affects:
+      - docs/README.md
+      - docs/v0.0.0/README.md
+  - id: ownership_model
+    prompt: Who will maintain the reshaped documentation going forward?
+    reason: This affects governance and task-delivery expectations.
+    affects:
+      - docs/repo-workflow-guide.md
+      - docs/task-delivery-guide.md

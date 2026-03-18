@@ -108,6 +108,8 @@ The CLI is expected to become the main entry point for users. Initial command ar
 - `plan`: summarize what documents should exist next
 - `next`: provide the next structured questions for the conversation
 
+The first minimal CLI skeleton now exists in `cmd/agentskeleton`, with the output contract defined in `docs/cli-contract.md`.
+
 ## Current Status
 
 This repository is in the initial definition stage. The first push should establish:
@@ -117,6 +119,7 @@ This repository is in the initial definition stage. The first push should establ
 - naming conventions
 - agent support strategy
 - CLI direction for documentation guidance
+- initial CLI contract and runnable command skeleton
 
 ## Contributing Direction
 

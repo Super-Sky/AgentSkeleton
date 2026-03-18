@@ -1,0 +1,32 @@
+command: plan
+project_mode: legacy
+documentation_phase: planning
+known_facts:
+  - key: project_name
+    value: LegacyMallOps
+  - key: structure_strategy
+    value: existing
+  - key: current_layout_summary
+    value: Mixed top-level modules with legacy naming and partial docs coverage
+missing_information:
+  - undocumented_directories
+  - active_release_docs_strategy
+  - ownership_model
+recommended_documents:
+  - path: docs/legacy-structure-inventory.md
+    purpose: capture the current repository layout before reshaping docs
+    status: required
+  - path: docs/domain-overview.md
+    purpose: define domain language for future documentation
+    status: required
+  - path: docs/architecture.md
+    purpose: explain the current repository and system shape
+    status: required
+  - path: docs/legacy-reshape-guide.md
+    purpose: define the reshape flow for this repository
+    status: required
+next_actions:
+  - list undocumented top-level directories
+  - decide whether versioned feature docs are needed for active work
+  - clarify documentation ownership
+  - draft docs/legacy-structure-inventory.md

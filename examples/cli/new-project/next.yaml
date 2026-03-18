@@ -1,0 +1,22 @@
+command: next
+documentation_phase: discovery
+conversation_goal: clarify the starting documentation scope for a new project
+questions:
+  - id: project_summary
+    prompt: What is the one-sentence summary of this project?
+    reason: The summary anchors README and domain overview drafts.
+    affects:
+      - README.md
+      - docs/domain-overview.md
+  - id: deployment_shape
+    prompt: What kind of system shape is this project expected to have, such as web platform, CLI, backend service, or mixed system?
+    reason: This determines how architecture and repository structure should be described.
+    affects:
+      - docs/architecture.md
+      - README.md
+  - id: ownership_model
+    prompt: Who is expected to maintain the documentation over time?
+    reason: This affects workflow guidance and governance expectations.
+    affects:
+      - docs/repo-workflow-guide.md
+      - docs/task-delivery-guide.md
