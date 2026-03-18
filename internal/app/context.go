@@ -15,10 +15,17 @@ const defaultContextPath = ".agentskeleton/context.yaml"
 // Context stores the project guidance state.
 type Context struct {
 	Version       string        `yaml:"version" json:"version"`
+	Paths         Paths         `yaml:"paths" json:"paths"`
 	Project       Project       `yaml:"project" json:"project"`
 	Documentation Documentation `yaml:"documentation" json:"documentation"`
 	Structure     Structure     `yaml:"structure" json:"structure"`
 	Conversation  Conversation  `yaml:"conversation" json:"conversation"`
+}
+
+type Paths struct {
+	ProjectRoot string `yaml:"project_root" json:"project_root"`
+	OutputDir   string `yaml:"output_dir" json:"output_dir"`
+	ContextPath string `yaml:"context_path" json:"context_path"`
 }
 
 type Project struct {

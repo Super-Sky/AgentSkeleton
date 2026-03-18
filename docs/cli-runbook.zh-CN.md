@@ -10,10 +10,22 @@
 agentskeleton init-docs --name MallHub --context .agentskeleton/context.yaml
 ```
 
+或者使用项目/输出目录默认规则：
+
+```bash
+agentskeleton init-docs --project /path/to/project --output-dir docs-generated --name MallHub
+```
+
 2. 生成计划：
 
 ```bash
 agentskeleton plan --context .agentskeleton/context.yaml --format yaml
+```
+
+如果不传 `--context`，会根据 `--project` 自动解析默认上下文路径：
+
+```bash
+agentskeleton plan --project /path/to/project --format yaml
 ```
 
 3. 生成宿主模型初始提示词：

@@ -6,8 +6,11 @@ import (
 )
 
 func runInitDocs(args []string) error {
+	contextSet := flagExplicitlySet(args, "context")
 	fs := flag.NewFlagSet("init-docs", flag.ContinueOnError)
 	contextPath := fs.String("context", defaultContextPath, "context file path")
+	project := fs.String("project", defaultProjectRoot, "project root path")
+	outputDir := fs.String("output-dir", "", "documentation output directory (default: project root)")
 	host := fs.String("host", "codex", "host environment")
 	name := fs.String("name", "", "project name")
 	summary := fs.String("summary", "", "project summary")
@@ -16,9 +19,23 @@ func runInitDocs(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	projectRoot, err := resolveProjectRoot(*project)
+	if err != nil {
+		return err
+	}
+	outputRoot, err := resolveOutputDir(projectRoot, *outputDir)
+	if err != nil {
+		return err
+	}
+	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
 
 	ctx := Context{
 		Version: "v0.0.0",
+		Paths: Paths{
+			ProjectRoot: projectRoot,
+			OutputDir:   outputRoot,
+			ContextPath: resolvedContext,
+		},
 		Project: Project{
 			Name:         *name,
 			Summary:      *summary,
@@ -30,7 +47,7 @@ func runInitDocs(args []string) error {
 		Documentation: Documentation{
 			Phase:          "discovery",
 			GeneratedDocs:  []string{},
-			MissingDocs:    defaultNewMissingDocs(),
+			MissingDocs:    defaultNewMissingDocs(outputRoot),
 			ReleaseVersion: "v0.0.0",
 		},
 		Structure: Structure{
@@ -56,25 +73,27 @@ func runInitDocs(args []string) error {
 		})
 	}
 
-	if err := writeContext(*contextPath, ctx); err != nil {
+	if err := writeContext(resolvedContext, ctx); err != nil {
 		return err
 	}
 
 	return printOutput(*format, map[string]any{
 		"command":      "init-docs",
-		"context_path": *contextPath,
+		"context_path": resolvedContext,
+		"project_root": projectRoot,
+		"output_dir":   outputRoot,
 		"project_mode": "new",
 		"status":       "initialized",
-		"next_hint":    fmt.Sprintf("run `agentskeleton plan --context %s`", *contextPath),
+		"next_hint":    fmt.Sprintf("run `agentskeleton plan --context %s`", resolvedContext),
 	})
 }
 
-func defaultNewMissingDocs() []string {
+func defaultNewMissingDocs(outputRoot string) []string {
 	return []string{
-		"README.md",
-		"AGENTS.md",
-		"CLAUDE.md",
-		"docs/domain-overview.md",
-		"docs/architecture.md",
+		resolveDocPath(outputRoot, "README.md"),
+		resolveDocPath(outputRoot, "AGENTS.md"),
+		resolveDocPath(outputRoot, "CLAUDE.md"),
+		resolveDocPath(outputRoot, "docs/domain-overview.md"),
+		resolveDocPath(outputRoot, "docs/architecture.md"),
 	}
 }

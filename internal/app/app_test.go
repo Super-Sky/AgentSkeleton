@@ -31,6 +31,42 @@ func TestRunInitDocsCreatesContext(t *testing.T) {
 	}
 }
 
+func TestRunInitDocsResolvesProjectDefaultContextAndOutputDir(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+
+	err := runInitDocs([]string{
+		"--project", projectDir,
+		"--output-dir", "generated-docs",
+		"--name", "MallHub",
+		"--format", "yaml",
+	})
+	if err != nil {
+		t.Fatalf("runInitDocs() error = %v", err)
+	}
+
+	contextPath := filepath.Join(projectDir, ".agentskeleton", "context.yaml")
+	ctx, err := loadContext(contextPath)
+	if err != nil {
+		t.Fatalf("loadContext() error = %v", err)
+	}
+
+	expectedOutput := filepath.Join(projectDir, "generated-docs")
+	if ctx.Paths.ProjectRoot != projectDir {
+		t.Fatalf("project_root = %q, want %q", ctx.Paths.ProjectRoot, projectDir)
+	}
+	if ctx.Paths.OutputDir != expectedOutput {
+		t.Fatalf("output_dir = %q, want %q", ctx.Paths.OutputDir, expectedOutput)
+	}
+	for _, p := range ctx.Documentation.MissingDocs {
+		if !strings.HasPrefix(p, expectedOutput) {
+			t.Fatalf("missing doc path not rooted in output dir: %q", p)
+		}
+	}
+}
+
 func TestLoadContextFixtures(t *testing.T) {
 	t.Parallel()
 

@@ -29,6 +29,13 @@ Recommended location:
 
 The file stores the current state of the documentation guidance process.
 
+Path rules:
+
+- `--project` sets the project root
+- if `--context` is not provided, context defaults to `<project>/.agentskeleton/context.yaml`
+- `init-docs` and `reshape-docs` support `--output-dir`
+- if `--output-dir` is not provided, document targets default to the project root
+
 ## Context Schema
 
 Initial fields:
@@ -176,6 +183,7 @@ Initialize a documentation guidance session for a new project.
 - set `project.mode` to `new`
 - set `structure.strategy` to `recommended`
 - seed an initial document plan
+- write path metadata (`project_root`, `output_dir`, `context_path`) into context
 
 ## `reshape-docs`
 
@@ -189,6 +197,7 @@ Initialize a documentation reshaping session for an existing repository.
 - set `project.mode` to `legacy`
 - set `structure.strategy` to `existing`
 - seed a structure-inventory-first plan
+- write path metadata (`project_root`, `output_dir`, `context_path`) into context
 
 ## `response`
 

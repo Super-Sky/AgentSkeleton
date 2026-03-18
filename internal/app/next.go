@@ -17,14 +17,21 @@ type NextQuestion struct {
 }
 
 func runNext(args []string) error {
+	contextSet := flagExplicitlySet(args, "context")
 	fs := flag.NewFlagSet("next", flag.ContinueOnError)
 	contextPath := fs.String("context", defaultContextPath, "context file path")
+	project := fs.String("project", defaultProjectRoot, "project root path")
 	format := fs.String("format", "yaml", "output format")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	projectRoot, err := resolveProjectRoot(*project)
+	if err != nil {
+		return err
+	}
+	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
 
-	ctx, err := loadContext(*contextPath)
+	ctx, err := loadContext(resolvedContext)
 	if err != nil {
 		return err
 	}

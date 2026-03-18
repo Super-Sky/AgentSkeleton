@@ -16,8 +16,10 @@ type WorkflowOutput struct {
 }
 
 func runWorkflow(args []string) error {
+	contextSet := flagExplicitlySet(args, "context")
 	fs := flag.NewFlagSet("workflow", flag.ContinueOnError)
 	contextPath := fs.String("context", defaultContextPath, "context file path")
+	project := fs.String("project", defaultProjectRoot, "project root path")
 	format := fs.String("format", "yaml", "output format")
 	schema := fs.String("schema", "question-answer-set-v1", "response schema name")
 	responseFile := fs.String("response-file", "", "optional host-model response file (yaml|json)")
@@ -29,6 +31,11 @@ func runWorkflow(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	projectRoot, err := resolveProjectRoot(*project)
+	if err != nil {
+		return err
+	}
+	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
 
 	var responseEval *RetryResult
 	if *responseFile != "" {
@@ -43,13 +50,13 @@ func runWorkflow(args []string) error {
 		result := EvaluateResponse(DefaultRetryPolicy(), *attempt, envelope)
 		responseEval = &result
 		if *apply {
-			if _, err := applyAcceptedResponse(*contextPath, *question, *docs, *allowExampleWrite, result, envelope); err != nil {
+			if _, err := applyAcceptedResponse(resolvedContext, *question, *docs, *allowExampleWrite, result, envelope); err != nil {
 				return err
 			}
 		}
 	}
 
-	ctx, err := loadContext(*contextPath)
+	ctx, err := loadContext(resolvedContext)
 	if err != nil {
 		return err
 	}
@@ -93,7 +100,7 @@ func runWorkflow(args []string) error {
 
 	out := WorkflowOutput{
 		Command:      "workflow",
-		ContextPath:  *contextPath,
+		ContextPath:  resolvedContext,
 		Plan:         plan,
 		Prompt:       prompt,
 		Next:         next,

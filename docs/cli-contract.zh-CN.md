@@ -29,6 +29,13 @@ CLI 应维护一个项目上下文文件。
 
 这个文件用于存储当前文档引导过程的状态。
 
+路径规则：
+
+- `--project` 用于指定项目根目录
+- 如果不传 `--context`，默认使用 `<project>/.agentskeleton/context.yaml`
+- `init-docs` 和 `reshape-docs` 支持 `--output-dir`
+- 如果不传 `--output-dir`，文档目标默认落在项目根目录
+
 ## 上下文结构
 
 初始字段建议如下：
@@ -176,6 +183,7 @@ questions:
 - 将 `project.mode` 设置为 `new`
 - 将 `structure.strategy` 设置为 `recommended`
 - 初始化一份基础文档计划
+- 在上下文中记录路径元数据（`project_root`、`output_dir`、`context_path`）
 
 ## `reshape-docs`
 
@@ -189,6 +197,7 @@ questions:
 - 将 `project.mode` 设置为 `legacy`
 - 将 `structure.strategy` 设置为 `existing`
 - 初始化一份“先盘点结构”的文档计划
+- 在上下文中记录路径元数据（`project_root`、`output_dir`、`context_path`）
 
 ## `response`
 

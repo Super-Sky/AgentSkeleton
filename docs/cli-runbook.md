@@ -10,10 +10,22 @@ This runbook describes the minimum end-to-end loop for documentation guidance.
 agentskeleton init-docs --name MallHub --context .agentskeleton/context.yaml
 ```
 
+Or use project/output defaults:
+
+```bash
+agentskeleton init-docs --project /path/to/project --output-dir docs-generated --name MallHub
+```
+
 2. Generate plan:
 
 ```bash
 agentskeleton plan --context .agentskeleton/context.yaml --format yaml
+```
+
+If context is omitted, `--project` controls default context resolution:
+
+```bash
+agentskeleton plan --project /path/to/project --format yaml
 ```
 
 3. Generate initial host-model prompt:

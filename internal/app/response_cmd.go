@@ -13,10 +13,12 @@ import (
 )
 
 func runResponse(args []string) error {
+	contextSet := flagExplicitlySet(args, "context")
 	fs := flag.NewFlagSet("response", flag.ContinueOnError)
 	file := fs.String("file", "", "host-model response file (yaml|json)")
 	attempt := fs.Int("attempt", 0, "current retry attempt (0-based)")
 	contextPath := fs.String("context", defaultContextPath, "context file path")
+	project := fs.String("project", defaultProjectRoot, "project root path")
 	apply := fs.Bool("apply", false, "apply accepted response into context")
 	allowExampleWrite := fs.Bool("allow-example-write", false, "allow writing context under examples/")
 	question := fs.String("question", "", "question id to update in context")
@@ -25,6 +27,11 @@ func runResponse(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	projectRoot, err := resolveProjectRoot(*project)
+	if err != nil {
+		return err
+	}
+	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
 
 	if *file == "" {
 		return errors.New("response file is required")
@@ -48,7 +55,7 @@ func runResponse(args []string) error {
 	}
 
 	if *apply {
-		updated, err := applyAcceptedResponse(*contextPath, *question, *docs, *allowExampleWrite, result, envelope)
+		updated, err := applyAcceptedResponse(resolvedContext, *question, *docs, *allowExampleWrite, result, envelope)
 		if err != nil {
 			return err
 		}
