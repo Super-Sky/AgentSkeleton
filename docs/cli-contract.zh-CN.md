@@ -208,6 +208,11 @@ questions:
 
 默认会批量写回 `data` 中的所有字段；如果提供 `--question`，则仅写回该字段。
 
+安全保护：
+
+- 默认禁止写入 `examples/` 下的上下文文件
+- 只有在明确需要刷新示例时才使用 `--allow-example-write`
+
 ## `prompt`
 
 ### 目的

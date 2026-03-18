@@ -535,3 +535,33 @@ func TestRunWorkflowApplyAcceptedResponse(t *testing.T) {
 		t.Fatalf("generated_docs not updated: %#v", updated.Documentation.GeneratedDocs)
 	}
 }
+
+func TestRunResponseApplyRejectsExamplePathByDefault(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	respPath := filepath.Join(root, "resp.yaml")
+	resp := "" +
+		"status: ok\n" +
+		"schema: question-answer-set-v1\n" +
+		"data:\n" +
+		"  project_summary: blocked write\n" +
+		"errors: []\n" +
+		"raw_text: \"\"\n"
+	if err := os.WriteFile(respPath, []byte(resp), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	err := runResponse([]string{
+		"--file", respPath,
+		"--context", "examples/cli/new-project/context.yaml",
+		"--apply",
+		"--format", "yaml",
+	})
+	if err == nil {
+		t.Fatalf("runResponse() expected error for example context path")
+	}
+	if !strings.Contains(err.Error(), "refusing to write example context path") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}

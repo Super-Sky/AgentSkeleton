@@ -208,6 +208,11 @@ Validate host-model responses, evaluate retry decisions, and optionally apply ac
 
 By default, accepted `data` fields are applied in batch. If `--question` is provided, only that field is applied.
 
+Safety guard:
+
+- writing into `examples/` context paths is blocked by default
+- use `--allow-example-write` only for explicit sample regeneration
+
 ## `prompt`
 
 ### Purpose

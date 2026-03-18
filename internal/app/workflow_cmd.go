@@ -23,6 +23,7 @@ func runWorkflow(args []string) error {
 	responseFile := fs.String("response-file", "", "optional host-model response file (yaml|json)")
 	attempt := fs.Int("attempt", 0, "current retry attempt (0-based)")
 	apply := fs.Bool("apply", false, "apply accepted response into context")
+	allowExampleWrite := fs.Bool("allow-example-write", false, "allow writing context under examples/")
 	question := fs.String("question", "", "question id to update in context")
 	docs := fs.String("docs", "", "comma-separated docs to mark as generated when accepted")
 	if err := fs.Parse(args); err != nil {
@@ -42,7 +43,7 @@ func runWorkflow(args []string) error {
 		result := EvaluateResponse(DefaultRetryPolicy(), *attempt, envelope)
 		responseEval = &result
 		if *apply {
-			if _, err := applyAcceptedResponse(*contextPath, *question, *docs, result, envelope); err != nil {
+			if _, err := applyAcceptedResponse(*contextPath, *question, *docs, *allowExampleWrite, result, envelope); err != nil {
 				return err
 			}
 		}

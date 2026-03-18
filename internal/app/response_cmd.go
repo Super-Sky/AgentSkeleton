@@ -18,6 +18,7 @@ func runResponse(args []string) error {
 	attempt := fs.Int("attempt", 0, "current retry attempt (0-based)")
 	contextPath := fs.String("context", defaultContextPath, "context file path")
 	apply := fs.Bool("apply", false, "apply accepted response into context")
+	allowExampleWrite := fs.Bool("allow-example-write", false, "allow writing context under examples/")
 	question := fs.String("question", "", "question id to update in context")
 	docs := fs.String("docs", "", "comma-separated docs to mark as generated when accepted")
 	format := fs.String("format", "yaml", "output format")
@@ -47,7 +48,7 @@ func runResponse(args []string) error {
 	}
 
 	if *apply {
-		updated, err := applyAcceptedResponse(*contextPath, *question, *docs, result, envelope)
+		updated, err := applyAcceptedResponse(*contextPath, *question, *docs, *allowExampleWrite, result, envelope)
 		if err != nil {
 			return err
 		}
@@ -77,9 +78,12 @@ func parseEnvelope(data []byte) (ResponseEnvelope, error) {
 	return envelope, nil
 }
 
-func applyAcceptedResponse(contextPath, question, docs string, result RetryResult, envelope ResponseEnvelope) (bool, error) {
+func applyAcceptedResponse(contextPath, question, docs string, allowExampleWrite bool, result RetryResult, envelope ResponseEnvelope) (bool, error) {
 	if result.Decision != RetryDecisionAccept {
 		return false, nil
+	}
+	if !allowExampleWrite && isExamplePath(contextPath) {
+		return false, fmt.Errorf("refusing to write example context path %q (use --allow-example-write to override)", contextPath)
 	}
 
 	ctx, err := loadContext(contextPath)
@@ -104,6 +108,11 @@ func applyAcceptedResponse(contextPath, question, docs string, result RetryResul
 		return false, err
 	}
 	return true, nil
+}
+
+func isExamplePath(path string) bool {
+	normalized := strings.ReplaceAll(path, "\\", "/")
+	return strings.Contains(normalized, "/examples/") || strings.HasPrefix(normalized, "examples/")
 }
 
 func selectQuestionIDs(explicitQuestion string, data map[string]any) ([]string, error) {
