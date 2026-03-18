@@ -108,6 +108,8 @@ The CLI is expected to become the main entry point for users. Initial command ar
 - `plan`: summarize what documents should exist next
 - `next`: provide the next structured questions for the conversation
 
+See `docs/agent-prompts.md` for the host-model prompt expectations so structured retries work.
+
 The first minimal CLI skeleton now exists in `cmd/agentskeleton`, with the output contract defined in `docs/cli-contract.md`.
 
 ## Current Status

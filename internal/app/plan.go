@@ -1,11 +1,15 @@
 package app
 
-import "flag"
+import (
+	"flag"
+	"fmt"
+)
 
 type PlanOutput struct {
 	Command              string           `yaml:"command" json:"command"`
 	ProjectMode          string           `yaml:"project_mode" json:"project_mode"`
 	DocumentationPhase   string           `yaml:"documentation_phase" json:"documentation_phase"`
+	ReleaseVersion       string           `yaml:"release_version" json:"release_version"`
 	KnownFacts           []Fact           `yaml:"known_facts" json:"known_facts"`
 	MissingInformation   []string         `yaml:"missing_information" json:"missing_information"`
 	RecommendedDocuments []DocumentAdvice `yaml:"recommended_documents" json:"recommended_documents"`
@@ -43,9 +47,12 @@ func runPlan(args []string) error {
 		Command:              "plan",
 		ProjectMode:          ctx.Project.Mode,
 		DocumentationPhase:   ctx.Documentation.Phase,
+		ReleaseVersion:       ctx.Documentation.ReleaseVersion,
 		KnownFacts:           buildKnownFacts(ctx),
 		MissingInformation:   append([]string{}, ctx.Conversation.OpenQuestions...),
-		RecommendedDocuments: recommendedDocumentsForMode(ctx.Project.Mode),
+		RecommendedDocuments: append(
+			recommendedDocumentsForMode(ctx.Project.Mode),
+			versionedDocuments(ctx.Documentation.ReleaseVersion)...),
 		NextActions:          nextActionsForMode(ctx.Project.Mode),
 	}
 
@@ -101,5 +108,17 @@ func nextActionsForMode(mode string) []string {
 		"ask for the deployment shape",
 		"ask who owns documentation maintenance",
 		"draft README.md",
+	}
+}
+
+func versionedDocuments(release string) []DocumentAdvice {
+	if release == "" {
+		return nil
+	}
+	return []DocumentAdvice{
+		{Path: fmt.Sprintf("docs/%s/README.md", release), Purpose: "versioned work index and entrypoint", Status: "optional"},
+		{Path: fmt.Sprintf("docs/%s/features/README.md", release), Purpose: "feature documentation index for the release", Status: "optional"},
+		{Path: fmt.Sprintf("docs/%s/features/feature-template.md", release), Purpose: "feature note template for the release", Status: "optional"},
+		{Path: fmt.Sprintf("docs/%s/features/review-checklist-template.md", release), Purpose: "review checklist template for the release", Status: "optional"},
 	}
 }

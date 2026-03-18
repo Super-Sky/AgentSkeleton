@@ -20,6 +20,8 @@ func Run(args []string) error {
 		return runPlan(args[1:])
 	case "next":
 		return runNext(args[1:])
+	case "response":
+		return runResponse(args[1:])
 	case "help", "-h", "--help":
 		return printUsage()
 	default:
@@ -43,6 +45,7 @@ Usage:
   agentskeleton reshape-docs [flags]
   agentskeleton plan [flags]
   agentskeleton next [flags]
+  agentskeleton response [flags]
 
 Flags:
   --context <path>   Override context file path
