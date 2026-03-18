@@ -302,6 +302,80 @@ func TestRunResponseApplyInvalidDoesNotUpdateContext(t *testing.T) {
 	}
 }
 
+func TestRunResponseApplyAcceptUpdatesMultipleAnswers(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
+	respPath := filepath.Join(root, "resp.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:         "discovery",
+			GeneratedDocs: []string{},
+			MissingDocs:   []string{"README.md", "docs/architecture.md"},
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"project_summary", "deployment_shape"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+	resp := "" +
+		"status: ok\n" +
+		"schema: question-answer-set-v1\n" +
+		"data:\n" +
+		"  project_summary: summary text\n" +
+		"  deployment_shape: web platform\n" +
+		"errors: []\n" +
+		"raw_text: \"\"\n"
+	if err := os.WriteFile(respPath, []byte(resp), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	err := runResponse([]string{
+		"--file", respPath,
+		"--context", contextPath,
+		"--apply",
+		"--docs", "README.md,docs/architecture.md",
+		"--format", "yaml",
+	})
+	if err != nil {
+		t.Fatalf("runResponse() error = %v", err)
+	}
+
+	updated, err := loadContext(contextPath)
+	if err != nil {
+		t.Fatalf("loadContext() error = %v", err)
+	}
+
+	gotAnswers := map[string]string{}
+	for _, a := range updated.Conversation.AnsweredQuestions {
+		gotAnswers[a.ID] = a.Value
+	}
+	if gotAnswers["project_summary"] != "summary text" {
+		t.Fatalf("project_summary answer mismatch: %q", gotAnswers["project_summary"])
+	}
+	if gotAnswers["deployment_shape"] != "web platform" {
+		t.Fatalf("deployment_shape answer mismatch: %q", gotAnswers["deployment_shape"])
+	}
+	if strings.Contains(strings.Join(updated.Conversation.OpenQuestions, ","), "project_summary") {
+		t.Fatalf("project_summary should be removed from open_questions")
+	}
+	if strings.Contains(strings.Join(updated.Conversation.OpenQuestions, ","), "deployment_shape") {
+		t.Fatalf("deployment_shape should be removed from open_questions")
+	}
+	if len(updated.Documentation.GeneratedDocs) != 2 {
+		t.Fatalf("generated_docs len = %d, want 2", len(updated.Documentation.GeneratedDocs))
+	}
+}
+
 func TestRunPromptInitial(t *testing.T) {
 	t.Parallel()
 

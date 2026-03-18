@@ -30,9 +30,10 @@ agentskeleton response \
   --context .agentskeleton/context.yaml \
   --attempt 0 \
   --apply \
-  --question project_summary \
   --docs README.md,docs/domain-overview.md
 ```
+
+If the response `data` contains multiple fields, all of them are applied by default. Use `--question <id>` only when you want to apply a single field.
 
 5. Continue with next questions:
 

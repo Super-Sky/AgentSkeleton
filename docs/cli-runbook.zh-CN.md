@@ -30,9 +30,10 @@ agentskeleton response \
   --context .agentskeleton/context.yaml \
   --attempt 0 \
   --apply \
-  --question project_summary \
   --docs README.md,docs/domain-overview.md
 ```
+
+如果返回 `data` 中包含多个字段，默认会批量写回。只有在你希望单字段写回时才需要加 `--question <id>`。
 
 5. 继续下一轮问题：
 

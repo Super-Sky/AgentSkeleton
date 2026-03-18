@@ -206,6 +206,8 @@ Validate host-model responses, evaluate retry decisions, and optionally apply ac
   - remove answered question from `open_questions`
   - optionally mark docs as generated
 
+By default, accepted `data` fields are applied in batch. If `--question` is provided, only that field is applied.
+
 ## `prompt`
 
 ### Purpose

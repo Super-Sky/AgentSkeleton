@@ -206,6 +206,8 @@ questions:
   - 将已回答问题从 `open_questions` 移除
   - 可选将文档标记为已生成
 
+默认会批量写回 `data` 中的所有字段；如果提供 `--question`，则仅写回该字段。
+
 ## `prompt`
 
 ### 目的

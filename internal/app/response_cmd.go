@@ -87,19 +87,17 @@ func applyAcceptedResponse(contextPath, question, docs string, result RetryResul
 		return false, err
 	}
 
-	questionID := question
-	if questionID == "" {
-		questionID, err = inferQuestionID(envelope.Data)
-		if err != nil {
-			return false, err
+	questionIDs, err := selectQuestionIDs(question, envelope.Data)
+	if err != nil {
+		return false, err
+	}
+	for _, questionID := range questionIDs {
+		value, ok := envelope.Data[questionID]
+		if !ok {
+			return false, fmt.Errorf("response data does not include question key %q", questionID)
 		}
+		ctx.applyAnswer(questionID, fmt.Sprint(value))
 	}
-
-	value, ok := envelope.Data[questionID]
-	if !ok {
-		return false, fmt.Errorf("response data does not include question key %q", questionID)
-	}
-	ctx.applyAnswer(questionID, fmt.Sprint(value))
 	ctx.markGenerated(parseDocs(docs))
 
 	if err := writeContext(contextPath, ctx); err != nil {
@@ -108,19 +106,28 @@ func applyAcceptedResponse(contextPath, question, docs string, result RetryResul
 	return true, nil
 }
 
-func inferQuestionID(data map[string]any) (string, error) {
+func selectQuestionIDs(explicitQuestion string, data map[string]any) ([]string, error) {
+	if explicitQuestion != "" {
+		return []string{explicitQuestion}, nil
+	}
+
+	keys, err := inferQuestionIDs(data)
+	if err != nil {
+		return nil, err
+	}
+	return keys, nil
+}
+
+func inferQuestionIDs(data map[string]any) ([]string, error) {
 	keys := make([]string, 0, len(data))
 	for k := range data {
 		keys = append(keys, k)
 	}
-	if len(keys) == 1 {
-		return keys[0], nil
-	}
 	if len(keys) == 0 {
-		return "", errors.New("cannot infer question id from empty response data")
+		return nil, errors.New("cannot infer question id from empty response data")
 	}
 	slices.Sort(keys)
-	return "", fmt.Errorf("cannot infer question id from multiple keys: %v", keys)
+	return keys, nil
 }
 
 func parseDocs(raw string) []string {
