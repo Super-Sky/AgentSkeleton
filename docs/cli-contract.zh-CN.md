@@ -268,7 +268,7 @@ questions:
   - `auto_repair.instructions`
 - 如果传入 `--persist-trace`：
   - 使用当前选择的输出格式序列化完整 workflow 结果
-  - 写入 `<output-dir>/.agentskeleton/traces/workflow-*.yaml|json`
+  - 写入 `<output-dir>/.agentskeleton/traces/workflow-<phase>-*.yaml|json`
   - 在 CLI 输出中返回 `trace_path`
 - 返回：
   - `plan` 输出

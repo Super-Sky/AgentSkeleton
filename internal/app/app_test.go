@@ -870,8 +870,6 @@ func TestRunWorkflowAutoRepairJSONOutput(t *testing.T) {
 }
 
 func TestRunWorkflowPersistTrace(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	projectDir := filepath.Join(root, "project")
 	outputDir := filepath.Join(root, "output")
@@ -919,7 +917,7 @@ func TestRunWorkflowPersistTrace(t *testing.T) {
 		}
 	})
 
-	tracePath := filepath.Join(outputDir, ".agentskeleton", "traces", "workflow-20260319T101112.123000000Z.yaml")
+	tracePath := filepath.Join(outputDir, ".agentskeleton", "traces", "workflow-discovery-20260319T101112.123000000Z.yaml")
 	data, err := os.ReadFile(tracePath)
 	if err != nil {
 		t.Fatalf("ReadFile() error = %v", err)
@@ -933,8 +931,6 @@ func TestRunWorkflowPersistTrace(t *testing.T) {
 }
 
 func TestPersistWorkflowTraceUsesRequestedFormat(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	artifactDir := filepath.Join(root, ".agentskeleton")
 
@@ -947,6 +943,9 @@ func TestPersistWorkflowTraceUsesRequestedFormat(t *testing.T) {
 	tracePath, err := persistWorkflowTrace(artifactDir, "json", WorkflowOutput{
 		Command:     "workflow",
 		ContextPath: filepath.Join(root, ".agentskeleton", "context.yaml"),
+		Plan: PlanOutput{
+			DocumentationPhase: "planning",
+		},
 	})
 	if err != nil {
 		t.Fatalf("persistWorkflowTrace() error = %v", err)
@@ -955,12 +954,22 @@ func TestPersistWorkflowTraceUsesRequestedFormat(t *testing.T) {
 	if filepath.Ext(tracePath) != ".json" {
 		t.Fatalf("trace extension = %q, want .json", filepath.Ext(tracePath))
 	}
+	if !strings.Contains(filepath.Base(tracePath), "workflow-planning-") {
+		t.Fatalf("trace file name = %q, want planning phase segment", filepath.Base(tracePath))
+	}
 	data, err := os.ReadFile(tracePath)
 	if err != nil {
 		t.Fatalf("ReadFile() error = %v", err)
 	}
 	if !strings.Contains(string(data), "\"command\": \"workflow\"") {
 		t.Fatalf("trace file missing json payload: %s", string(data))
+	}
+}
+
+func TestSanitizeTraceSegment(t *testing.T) {
+	got := sanitizeTraceSegment("Drafting / Review")
+	if got != "drafting-review" {
+		t.Fatalf("sanitizeTraceSegment() = %q, want %q", got, "drafting-review")
 	}
 }
 

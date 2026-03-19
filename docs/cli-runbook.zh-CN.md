@@ -86,7 +86,7 @@ agentskeleton workflow \
   --format yaml
 ```
 
-这会把 trace 文件写到 `<output-dir>/.agentskeleton/traces/`，并在 CLI 输出中返回 `trace_path`。
+这会把 trace 文件写到 `<output-dir>/.agentskeleton/traces/`，文件名会自动带上当前文档阶段，并在 CLI 输出中返回 `trace_path`。
 
 如果已经拿到宿主模型返回：
 

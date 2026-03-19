@@ -86,7 +86,7 @@ agentskeleton workflow \
   --format yaml
 ```
 
-This writes a trace file under `<output-dir>/.agentskeleton/traces/` and returns `trace_path` in the CLI output.
+This writes a trace file under `<output-dir>/.agentskeleton/traces/` using the current documentation phase in the filename, and returns `trace_path` in the CLI output.
 
 If you already have a host-model response:
 

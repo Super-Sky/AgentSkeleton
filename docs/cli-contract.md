@@ -268,7 +268,7 @@ Run one full guidance step that bundles `plan`, `prompt`, and `next`, with optio
   - `auto_repair.instructions`
 - if `--persist-trace` is set:
   - serialize the final workflow output using the selected format
-  - write it to `<output-dir>/.agentskeleton/traces/workflow-*.yaml|json`
+  - write it to `<output-dir>/.agentskeleton/traces/workflow-<phase>-*.yaml|json`
   - include `trace_path` in the CLI output
 - return:
   - `plan` output
