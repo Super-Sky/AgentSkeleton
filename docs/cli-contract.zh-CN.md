@@ -42,6 +42,7 @@ CLI 应维护一个项目上下文文件。
 - `workflow --write-plan-files` 会把已支持的计划文档写入 `<output-dir>/...`
 - 已存在文件默认跳过，只有显式传入 `--overwrite` 才会覆盖
 - `workflow --auto-repair` 会在响应评估结果为 `retry` 时输出修复包
+- `workflow --persist-trace` 会把完整 workflow 快照保存到 `<output-dir>/.agentskeleton/traces/`
 
 ## 上下文结构
 
@@ -265,6 +266,10 @@ questions:
   - `auto_repair.validation_errors`
   - `auto_repair.prompt`
   - `auto_repair.instructions`
+- 如果传入 `--persist-trace`：
+  - 使用当前选择的输出格式序列化完整 workflow 结果
+  - 写入 `<output-dir>/.agentskeleton/traces/workflow-*.yaml|json`
+  - 在 CLI 输出中返回 `trace_path`
 - 返回：
   - `plan` 输出
   - `prompt` 输出
@@ -272,6 +277,7 @@ questions:
   - 可选响应评估结果
   - 可选文件写入结果
   - 可选自动修复包
+  - 可选 trace 路径
 
 ## 输出格式策略
 

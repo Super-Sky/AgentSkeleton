@@ -76,6 +76,18 @@ agentskeleton workflow \
 
 默认只写缺失文件；只有你明确想覆盖已有生成文档时，才传 `--overwrite`。
 
+如果你希望为这一轮保留一份完整结构化快照，便于审计或后续回放：
+
+```bash
+agentskeleton workflow \
+  --project /path/to/project \
+  --output-dir /path/to/output \
+  --persist-trace \
+  --format yaml
+```
+
+这会把 trace 文件写到 `<output-dir>/.agentskeleton/traces/`，并在 CLI 输出中返回 `trace_path`。
+
 如果已经拿到宿主模型返回：
 
 ```bash

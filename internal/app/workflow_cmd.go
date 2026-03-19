@@ -16,6 +16,7 @@ type AutoRepairOutput struct {
 type WorkflowOutput struct {
 	Command      string            `yaml:"command" json:"command"`
 	ContextPath  string            `yaml:"context_path" json:"context_path"`
+	TracePath    string            `yaml:"trace_path,omitempty" json:"trace_path,omitempty"`
 	Plan         PlanOutput        `yaml:"plan" json:"plan"`
 	Prompt       PromptOutput      `yaml:"prompt" json:"prompt"`
 	Next         NextOutput        `yaml:"next" json:"next"`
@@ -55,6 +56,7 @@ func runWorkflow(args []string) error {
 	writePlanFiles := fs.Bool("write-plan-files", false, "write planned document skeleton files into output-dir")
 	overwrite := fs.Bool("overwrite", false, "overwrite existing generated plan files")
 	autoRepair := fs.Bool("auto-repair", false, "when decision is retry, emit a repair package for the next host-model turn")
+	persistTrace := fs.Bool("persist-trace", false, "write the workflow snapshot under <output-dir>/.agentskeleton/traces/")
 	question := fs.String("question", "", "question id to update in context")
 	docs := fs.String("docs", "", "comma-separated docs to mark as generated when accepted")
 	if err := fs.Parse(args); err != nil {
@@ -87,6 +89,14 @@ func runWorkflow(args []string) error {
 	})
 	if err != nil {
 		return err
+	}
+
+	if *persistTrace {
+		tracePath, err := persistWorkflowTrace(artifactDirForOutput(outputRoot), *format, out)
+		if err != nil {
+			return err
+		}
+		out.TracePath = tracePath
 	}
 
 	return printOutput(*format, out)

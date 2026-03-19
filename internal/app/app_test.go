@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestRunInitDocsCreatesContext(t *testing.T) {
@@ -865,6 +866,101 @@ func TestRunWorkflowAutoRepairJSONOutput(t *testing.T) {
 	}
 	if !strings.Contains(output, "\"next_attempt\": 1") {
 		t.Fatalf("workflow output missing next_attempt: %s", output)
+	}
+}
+
+func TestRunWorkflowPersistTrace(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+	outputDir := filepath.Join(root, "output")
+	contextPath := filepath.Join(outputDir, ".agentskeleton", "context.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			ProjectRoot: projectDir,
+			OutputDir:   outputDir,
+			ArtifactDir: filepath.Join(outputDir, ".agentskeleton"),
+			ContextPath: contextPath,
+		},
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+		},
+		Structure: Structure{
+			Strategy: "recommended",
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+
+	originalNow := nowFunc
+	nowFunc = func() time.Time {
+		return time.Date(2026, 3, 19, 10, 11, 12, 123000000, time.UTC)
+	}
+	defer func() { nowFunc = originalNow }()
+
+	output := captureStdout(t, func() {
+		err := runWorkflow([]string{
+			"--project", projectDir,
+			"--output-dir", outputDir,
+			"--persist-trace",
+			"--format", "yaml",
+		})
+		if err != nil {
+			t.Fatalf("runWorkflow() error = %v", err)
+		}
+	})
+
+	tracePath := filepath.Join(outputDir, ".agentskeleton", "traces", "workflow-20260319T101112.123000000Z.yaml")
+	data, err := os.ReadFile(tracePath)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	if !strings.Contains(string(data), "command: workflow") {
+		t.Fatalf("trace file missing workflow payload: %s", string(data))
+	}
+	if !strings.Contains(output, "trace_path: "+tracePath) {
+		t.Fatalf("workflow output missing trace_path: %s", output)
+	}
+}
+
+func TestPersistWorkflowTraceUsesRequestedFormat(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	artifactDir := filepath.Join(root, ".agentskeleton")
+
+	originalNow := nowFunc
+	nowFunc = func() time.Time {
+		return time.Date(2026, 3, 19, 10, 11, 12, 456000000, time.UTC)
+	}
+	defer func() { nowFunc = originalNow }()
+
+	tracePath, err := persistWorkflowTrace(artifactDir, "json", WorkflowOutput{
+		Command:     "workflow",
+		ContextPath: filepath.Join(root, ".agentskeleton", "context.yaml"),
+	})
+	if err != nil {
+		t.Fatalf("persistWorkflowTrace() error = %v", err)
+	}
+
+	if filepath.Ext(tracePath) != ".json" {
+		t.Fatalf("trace extension = %q, want .json", filepath.Ext(tracePath))
+	}
+	data, err := os.ReadFile(tracePath)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	if !strings.Contains(string(data), "\"command\": \"workflow\"") {
+		t.Fatalf("trace file missing json payload: %s", string(data))
 	}
 }
 

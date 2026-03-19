@@ -42,6 +42,7 @@ Path rules:
 - `workflow --write-plan-files` writes supported planned documents into `<output-dir>/...`
 - existing files are preserved unless `--overwrite` is explicitly set
 - `workflow --auto-repair` emits a repair package when response evaluation returns `retry`
+- `workflow --persist-trace` stores the full workflow snapshot under `<output-dir>/.agentskeleton/traces/`
 
 ## Context Schema
 
@@ -265,6 +266,10 @@ Run one full guidance step that bundles `plan`, `prompt`, and `next`, with optio
   - `auto_repair.validation_errors`
   - `auto_repair.prompt`
   - `auto_repair.instructions`
+- if `--persist-trace` is set:
+  - serialize the final workflow output using the selected format
+  - write it to `<output-dir>/.agentskeleton/traces/workflow-*.yaml|json`
+  - include `trace_path` in the CLI output
 - return:
   - `plan` output
   - `prompt` output
@@ -272,6 +277,7 @@ Run one full guidance step that bundles `plan`, `prompt`, and `next`, with optio
   - optional response evaluation result
   - optional file write result
   - optional auto-repair package
+  - optional trace path
 
 ## Output Format Policy
 

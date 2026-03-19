@@ -9,19 +9,30 @@ import (
 )
 
 func printOutput(format string, v any) error {
+	data, err := marshalOutput(format, v)
+	if err != nil {
+		return err
+	}
+	_, err = os.Stdout.Write(data)
+	return err
+}
+
+func marshalOutput(format string, v any) ([]byte, error) {
 	switch format {
 	case "yaml", "":
 		data, err := yaml.Marshal(v)
 		if err != nil {
-			return fmt.Errorf("marshal yaml: %w", err)
+			return nil, fmt.Errorf("marshal yaml: %w", err)
 		}
-		_, err = os.Stdout.Write(data)
-		return err
+		return data, nil
 	case "json":
-		enc := json.NewEncoder(os.Stdout)
-		enc.SetIndent("", "  ")
-		return enc.Encode(v)
+		data, err := json.MarshalIndent(v, "", "  ")
+		if err != nil {
+			return nil, fmt.Errorf("marshal json: %w", err)
+		}
+		data = append(data, '\n')
+		return data, nil
 	default:
-		return fmt.Errorf("unsupported format %q", format)
+		return nil, fmt.Errorf("unsupported format %q", format)
 	}
 }

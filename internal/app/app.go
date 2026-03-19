@@ -56,6 +56,6 @@ Usage:
 Flags:
   --context <path>   Override context file path
   --project <path>   Project root (default: current directory)
-  --output-dir <dir> Documentation output directory (init/reshape)
+  --output-dir <dir> Documentation output directory
   --format <type>    Output format: yaml or json
 `

@@ -76,6 +76,18 @@ agentskeleton workflow \
 
 By default this writes missing files only. Add `--overwrite` only when you intentionally want to replace existing generated docs.
 
+If you want to keep a structured snapshot of the whole step for auditing or later replay:
+
+```bash
+agentskeleton workflow \
+  --project /path/to/project \
+  --output-dir /path/to/output \
+  --persist-trace \
+  --format yaml
+```
+
+This writes a trace file under `<output-dir>/.agentskeleton/traces/` and returns `trace_path` in the CLI output.
+
 If you already have a host-model response:
 
 ```bash
