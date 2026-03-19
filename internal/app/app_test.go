@@ -47,7 +47,7 @@ func TestRunInitDocsResolvesProjectDefaultContextAndOutputDir(t *testing.T) {
 		t.Fatalf("runInitDocs() error = %v", err)
 	}
 
-	contextPath := filepath.Join(projectDir, ".agentskeleton", "context.yaml")
+	contextPath := filepath.Join(projectDir, "generated-docs", ".agentskeleton", "context.yaml")
 	ctx, err := loadContext(contextPath)
 	if err != nil {
 		t.Fatalf("loadContext() error = %v", err)
@@ -59,6 +59,13 @@ func TestRunInitDocsResolvesProjectDefaultContextAndOutputDir(t *testing.T) {
 	}
 	if ctx.Paths.OutputDir != expectedOutput {
 		t.Fatalf("output_dir = %q, want %q", ctx.Paths.OutputDir, expectedOutput)
+	}
+	expectedArtifact := filepath.Join(expectedOutput, ".agentskeleton")
+	if ctx.Paths.ArtifactDir != expectedArtifact {
+		t.Fatalf("artifact_dir = %q, want %q", ctx.Paths.ArtifactDir, expectedArtifact)
+	}
+	if ctx.Paths.ContextPath != contextPath {
+		t.Fatalf("context_path = %q, want %q", ctx.Paths.ContextPath, contextPath)
 	}
 	for _, p := range ctx.Documentation.MissingDocs {
 		if !strings.HasPrefix(p, expectedOutput) {
@@ -569,6 +576,48 @@ func TestRunWorkflowApplyAcceptedResponse(t *testing.T) {
 	}
 	if len(updated.Documentation.GeneratedDocs) != 1 || updated.Documentation.GeneratedDocs[0] != "README.md" {
 		t.Fatalf("generated_docs not updated: %#v", updated.Documentation.GeneratedDocs)
+	}
+}
+
+func TestRunPlanResolvesContextFromOutputDir(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+	outputDir := filepath.Join(projectDir, "docs-generated")
+	contextPath := filepath.Join(outputDir, ".agentskeleton", "context.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			ProjectRoot: projectDir,
+			OutputDir:   outputDir,
+			ArtifactDir: filepath.Join(outputDir, ".agentskeleton"),
+			ContextPath: contextPath,
+		},
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+		},
+		Structure: Structure{
+			Strategy: "recommended",
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+
+	err := runPlan([]string{
+		"--project", projectDir,
+		"--output-dir", "docs-generated",
+		"--format", "yaml",
+	})
+	if err != nil {
+		t.Fatalf("runPlan() error = %v", err)
 	}
 }
 

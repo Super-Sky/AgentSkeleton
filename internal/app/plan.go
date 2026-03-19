@@ -32,6 +32,7 @@ func runPlan(args []string) error {
 	fs := flag.NewFlagSet("plan", flag.ContinueOnError)
 	contextPath := fs.String("context", defaultContextPath, "context file path")
 	project := fs.String("project", defaultProjectRoot, "project root path")
+	outputDir := fs.String("output-dir", "", "documentation output directory (default: project root)")
 	format := fs.String("format", "yaml", "output format")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -40,7 +41,11 @@ func runPlan(args []string) error {
 	if err != nil {
 		return err
 	}
-	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
+	outputRoot, err := resolveOutputDir(projectRoot, *outputDir)
+	if err != nil {
+		return err
+	}
+	resolvedContext := resolveContextPath(outputRoot, *contextPath, contextSet)
 
 	ctx, err := loadContext(resolvedContext)
 	if err != nil {

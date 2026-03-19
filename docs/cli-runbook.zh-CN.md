@@ -7,31 +7,33 @@
 1. 初始化上下文：
 
 ```bash
-agentskeleton init-docs --name MallHub --context .agentskeleton/context.yaml
+agentskeleton init-docs --project /path/to/project --output-dir /path/to/output --name MallHub
 ```
 
-或者使用项目/输出目录默认规则：
+这会产生两类文件：
 
-```bash
-agentskeleton init-docs --project /path/to/project --output-dir docs-generated --name MallHub
+```text
+/path/to/output/.agentskeleton/    # AgentSkeleton 过程产物
+/path/to/output/README.md          # 最终文档与技能放在这里
+/path/to/output/docs/...
 ```
 
 2. 生成计划：
 
 ```bash
-agentskeleton plan --context .agentskeleton/context.yaml --format yaml
+agentskeleton plan --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
-如果不传 `--context`，会根据 `--project` 自动解析默认上下文路径：
+如果不传 `--context`，默认解析为：
 
-```bash
-agentskeleton plan --project /path/to/project --format yaml
+```text
+/path/to/output/.agentskeleton/context.yaml
 ```
 
 3. 生成宿主模型初始提示词：
 
 ```bash
-agentskeleton prompt --context .agentskeleton/context.yaml --mode initial --format yaml
+agentskeleton prompt --project /path/to/project --output-dir /path/to/output --mode initial --format yaml
 ```
 
 4. 校验并写回宿主模型返回：
@@ -39,10 +41,11 @@ agentskeleton prompt --context .agentskeleton/context.yaml --mode initial --form
 ```bash
 agentskeleton response \
   --file /path/to/host-response.yaml \
-  --context .agentskeleton/context.yaml \
+  --project /path/to/project \
+  --output-dir /path/to/output \
   --attempt 0 \
   --apply \
-  --docs README.md,docs/domain-overview.md
+  --docs /path/to/output/README.md,/path/to/output/docs/domain-overview.md
 ```
 
 如果返回 `data` 中包含多个字段，默认会批量写回。只有在你希望单字段写回时才需要加 `--question <id>`。
@@ -50,7 +53,7 @@ agentskeleton response \
 5. 继续下一轮问题：
 
 ```bash
-agentskeleton next --context .agentskeleton/context.yaml --format yaml
+agentskeleton next --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
 ## 单命令流程
@@ -58,21 +61,27 @@ agentskeleton next --context .agentskeleton/context.yaml --format yaml
 你可以用一个命令执行打包步骤：
 
 ```bash
-agentskeleton workflow --context .agentskeleton/context.yaml --format yaml
+agentskeleton workflow --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
 如果已经拿到宿主模型返回：
 
 ```bash
 agentskeleton workflow \
-  --context .agentskeleton/context.yaml \
+  --project /path/to/project \
+  --output-dir /path/to/output \
   --response-file /path/to/host-response.yaml \
   --attempt 0 \
   --apply \
-  --question project_summary \
-  --docs README.md,docs/domain-overview.md \
+  --docs /path/to/output/README.md,/path/to/output/docs/domain-overview.md \
   --format yaml
 ```
+
+## 清理模型
+
+- `<output-dir>/.agentskeleton` 只保存 AgentSkeleton 的过程产物。
+- `<output-dir>/...` 下的最终文档和技能属于用户可保留的交付结果。
+- 如果用户删除 `<output-dir>/.agentskeleton`，最终文档不受影响，只是 AgentSkeleton 不再保留这次过程状态。
 
 ## 重试循环
 
@@ -82,7 +91,8 @@ agentskeleton workflow \
 
 ```bash
 agentskeleton prompt \
-  --context .agentskeleton/context.yaml \
+  --project /path/to/project \
+  --output-dir /path/to/output \
   --mode repair \
   --errors "missing required field: project_summary" \
   --format yaml

@@ -19,6 +19,7 @@ func runResponse(args []string) error {
 	attempt := fs.Int("attempt", 0, "current retry attempt (0-based)")
 	contextPath := fs.String("context", defaultContextPath, "context file path")
 	project := fs.String("project", defaultProjectRoot, "project root path")
+	outputDir := fs.String("output-dir", "", "documentation output directory (default: project root)")
 	apply := fs.Bool("apply", false, "apply accepted response into context")
 	allowExampleWrite := fs.Bool("allow-example-write", false, "allow writing context under examples/")
 	question := fs.String("question", "", "question id to update in context")
@@ -31,7 +32,11 @@ func runResponse(args []string) error {
 	if err != nil {
 		return err
 	}
-	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
+	outputRoot, err := resolveOutputDir(projectRoot, *outputDir)
+	if err != nil {
+		return err
+	}
+	resolvedContext := resolveContextPath(outputRoot, *contextPath, contextSet)
 
 	if *file == "" {
 		return errors.New("response file is required")

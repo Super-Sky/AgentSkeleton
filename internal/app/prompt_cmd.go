@@ -20,6 +20,7 @@ func runPrompt(args []string) error {
 	fs := flag.NewFlagSet("prompt", flag.ContinueOnError)
 	contextPath := fs.String("context", defaultContextPath, "context file path")
 	project := fs.String("project", defaultProjectRoot, "project root path")
+	outputDir := fs.String("output-dir", "", "documentation output directory (default: project root)")
 	mode := fs.String("mode", "initial", "prompt mode: initial|repair")
 	schema := fs.String("schema", "question-answer-set-v1", "response schema name")
 	errorsRaw := fs.String("errors", "", "comma-separated validation errors for repair mode")
@@ -31,7 +32,11 @@ func runPrompt(args []string) error {
 	if err != nil {
 		return err
 	}
-	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
+	outputRoot, err := resolveOutputDir(projectRoot, *outputDir)
+	if err != nil {
+		return err
+	}
+	resolvedContext := resolveContextPath(outputRoot, *contextPath, contextSet)
 
 	ctx, err := loadContext(resolvedContext)
 	if err != nil {

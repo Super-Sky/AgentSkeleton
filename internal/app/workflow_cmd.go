@@ -20,6 +20,7 @@ func runWorkflow(args []string) error {
 	fs := flag.NewFlagSet("workflow", flag.ContinueOnError)
 	contextPath := fs.String("context", defaultContextPath, "context file path")
 	project := fs.String("project", defaultProjectRoot, "project root path")
+	outputDir := fs.String("output-dir", "", "documentation output directory (default: project root)")
 	format := fs.String("format", "yaml", "output format")
 	schema := fs.String("schema", "question-answer-set-v1", "response schema name")
 	responseFile := fs.String("response-file", "", "optional host-model response file (yaml|json)")
@@ -35,7 +36,11 @@ func runWorkflow(args []string) error {
 	if err != nil {
 		return err
 	}
-	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
+	outputRoot, err := resolveOutputDir(projectRoot, *outputDir)
+	if err != nil {
+		return err
+	}
+	resolvedContext := resolveContextPath(outputRoot, *contextPath, contextSet)
 
 	var responseEval *RetryResult
 	if *responseFile != "" {

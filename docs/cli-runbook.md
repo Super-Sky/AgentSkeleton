@@ -7,31 +7,33 @@ This runbook describes the minimum end-to-end loop for documentation guidance.
 1. Initialize context:
 
 ```bash
-agentskeleton init-docs --name MallHub --context .agentskeleton/context.yaml
+agentskeleton init-docs --project /path/to/project --output-dir /path/to/output --name MallHub
 ```
 
-Or use project/output defaults:
+This creates two kinds of files:
 
-```bash
-agentskeleton init-docs --project /path/to/project --output-dir docs-generated --name MallHub
+```text
+/path/to/output/.agentskeleton/    # AgentSkeleton process state
+/path/to/output/README.md          # final docs and skills belong here later
+/path/to/output/docs/...
 ```
 
 2. Generate plan:
 
 ```bash
-agentskeleton plan --context .agentskeleton/context.yaml --format yaml
+agentskeleton plan --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
-If context is omitted, `--project` controls default context resolution:
+If `--context` is omitted, it resolves to:
 
-```bash
-agentskeleton plan --project /path/to/project --format yaml
+```text
+/path/to/output/.agentskeleton/context.yaml
 ```
 
 3. Generate initial host-model prompt:
 
 ```bash
-agentskeleton prompt --context .agentskeleton/context.yaml --mode initial --format yaml
+agentskeleton prompt --project /path/to/project --output-dir /path/to/output --mode initial --format yaml
 ```
 
 4. Validate and apply a host-model response:
@@ -39,10 +41,11 @@ agentskeleton prompt --context .agentskeleton/context.yaml --mode initial --form
 ```bash
 agentskeleton response \
   --file /path/to/host-response.yaml \
-  --context .agentskeleton/context.yaml \
+  --project /path/to/project \
+  --output-dir /path/to/output \
   --attempt 0 \
   --apply \
-  --docs README.md,docs/domain-overview.md
+  --docs /path/to/output/README.md,/path/to/output/docs/domain-overview.md
 ```
 
 If the response `data` contains multiple fields, all of them are applied by default. Use `--question <id>` only when you want to apply a single field.
@@ -50,7 +53,7 @@ If the response `data` contains multiple fields, all of them are applied by defa
 5. Continue with next questions:
 
 ```bash
-agentskeleton next --context .agentskeleton/context.yaml --format yaml
+agentskeleton next --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
 ## One-Command Flow
@@ -58,21 +61,27 @@ agentskeleton next --context .agentskeleton/context.yaml --format yaml
 You can run one bundled step with:
 
 ```bash
-agentskeleton workflow --context .agentskeleton/context.yaml --format yaml
+agentskeleton workflow --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
 If you already have a host-model response:
 
 ```bash
 agentskeleton workflow \
-  --context .agentskeleton/context.yaml \
+  --project /path/to/project \
+  --output-dir /path/to/output \
   --response-file /path/to/host-response.yaml \
   --attempt 0 \
   --apply \
-  --question project_summary \
-  --docs README.md,docs/domain-overview.md \
+  --docs /path/to/output/README.md,/path/to/output/docs/domain-overview.md \
   --format yaml
 ```
+
+## Cleanup Model
+
+- `<output-dir>/.agentskeleton` contains only AgentSkeleton process artifacts.
+- Final docs and skills under `<output-dir>/...` are user-facing deliverables.
+- If the user deletes `<output-dir>/.agentskeleton`, the final docs remain intact and AgentSkeleton no longer retains process state for that run.
 
 ## Retry Loop
 
@@ -82,7 +91,8 @@ If `agentskeleton response` returns `decision: retry`:
 
 ```bash
 agentskeleton prompt \
-  --context .agentskeleton/context.yaml \
+  --project /path/to/project \
+  --output-dir /path/to/output \
   --mode repair \
   --errors "missing required field: project_summary" \
   --format yaml

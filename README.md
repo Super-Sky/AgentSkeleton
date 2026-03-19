@@ -113,7 +113,7 @@ The CLI is expected to become the main entry point for users. Initial command ar
 
 See `docs/agent-prompts.md` for the host-model prompt expectations so structured retries work.
 See `docs/cli-runbook.md` for the end-to-end command sequence.
-Path defaults: use `--project` to set project root, and `--output-dir` to place generated docs under a custom directory.
+Path defaults: use `--project` to identify the target project; AgentSkeleton process artifacts live under `<output-dir>/.agentskeleton`, while final docs and skills belong under `<output-dir>/...`.
 
 The first minimal CLI skeleton now exists in `cmd/agentskeleton`, with the output contract defined in `docs/cli-contract.md`.
 

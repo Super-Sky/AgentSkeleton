@@ -27,13 +27,15 @@ func runInitDocs(args []string) error {
 	if err != nil {
 		return err
 	}
-	resolvedContext := resolveContextPath(projectRoot, *contextPath, contextSet)
+	artifactDir := artifactDirForOutput(outputRoot)
+	resolvedContext := resolveContextPath(outputRoot, *contextPath, contextSet)
 
 	ctx := Context{
 		Version: "v0.0.0",
 		Paths: Paths{
 			ProjectRoot: projectRoot,
 			OutputDir:   outputRoot,
+			ArtifactDir: artifactDir,
 			ContextPath: resolvedContext,
 		},
 		Project: Project{

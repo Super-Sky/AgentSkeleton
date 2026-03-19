@@ -24,15 +24,19 @@ func resolveOutputDir(projectRoot, outputDir string) (string, error) {
 	return filepath.Abs(filepath.Join(projectRoot, outputDir))
 }
 
-func defaultContextPathForProject(projectRoot string) string {
-	return filepath.Join(projectRoot, ".agentskeleton", "context.yaml")
+func artifactDirForOutput(outputDir string) string {
+	return filepath.Join(outputDir, ".agentskeleton")
 }
 
-func resolveContextPath(projectRoot, explicitContext string, contextExplicitlySet bool) string {
+func defaultContextPathForOutput(outputDir string) string {
+	return filepath.Join(artifactDirForOutput(outputDir), "context.yaml")
+}
+
+func resolveContextPath(outputDir, explicitContext string, contextExplicitlySet bool) string {
 	if contextExplicitlySet {
 		return explicitContext
 	}
-	return defaultContextPathForProject(projectRoot)
+	return defaultContextPathForOutput(outputDir)
 }
 
 func flagExplicitlySet(args []string, longName string) bool {

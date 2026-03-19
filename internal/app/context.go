@@ -25,6 +25,7 @@ type Context struct {
 type Paths struct {
 	ProjectRoot string `yaml:"project_root" json:"project_root"`
 	OutputDir   string `yaml:"output_dir" json:"output_dir"`
+	ArtifactDir string `yaml:"artifact_dir" json:"artifact_dir"`
 	ContextPath string `yaml:"context_path" json:"context_path"`
 }
 

@@ -32,9 +32,13 @@ CLI 应维护一个项目上下文文件。
 路径规则：
 
 - `--project` 用于指定项目根目录
-- 如果不传 `--context`，默认使用 `<project>/.agentskeleton/context.yaml`
+- 如果不传 `--context`，默认使用 `<output-dir>/.agentskeleton/context.yaml`
 - `init-docs` 和 `reshape-docs` 支持 `--output-dir`
 - 如果不传 `--output-dir`，文档目标默认落在项目根目录
+- AgentSkeleton 生成的工作产物统一放在 `<output-dir>/.agentskeleton`
+- 这些工作产物包括上下文状态、重试元数据、提示词材料和流程痕迹
+- 最终给用户保留的结构化文档和技能放在 `<output-dir>/...`
+- 删除 `<output-dir>/.agentskeleton` 应能清理 AgentSkeleton 过程状态，而不影响最终文档
 
 ## 上下文结构
 
@@ -42,6 +46,11 @@ CLI 应维护一个项目上下文文件。
 
 ```yaml
 version: v0.0.0
+paths:
+  project_root: ""
+  output_dir: ""
+  artifact_dir: ""
+  context_path: ""
 project:
   name: ""
   summary: ""
