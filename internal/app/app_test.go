@@ -621,6 +621,122 @@ func TestRunPlanResolvesContextFromOutputDir(t *testing.T) {
 	}
 }
 
+func TestRunWorkflowWritePlanFiles(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+	outputDir := filepath.Join(root, "output")
+	contextPath := filepath.Join(outputDir, ".agentskeleton", "context.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			ProjectRoot: projectDir,
+			OutputDir:   outputDir,
+			ArtifactDir: filepath.Join(outputDir, ".agentskeleton"),
+			ContextPath: contextPath,
+		},
+		Project: Project{
+			Name:    "MallHub",
+			Summary: "AI-friendly shopping mall platform",
+			Mode:    "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+		},
+		Structure: Structure{
+			Strategy: "recommended",
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"ownership_model"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+
+	err := runWorkflow([]string{
+		"--project", projectDir,
+		"--output-dir", outputDir,
+		"--write-plan-files",
+		"--format", "yaml",
+	})
+	if err != nil {
+		t.Fatalf("runWorkflow() error = %v", err)
+	}
+
+	for _, path := range []string{
+		filepath.Join(outputDir, "README.md"),
+		filepath.Join(outputDir, "AGENTS.md"),
+		filepath.Join(outputDir, "CLAUDE.md"),
+		filepath.Join(outputDir, "docs", "architecture.md"),
+	} {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("expected generated file missing: %s", path)
+		}
+	}
+}
+
+func TestRunWorkflowWritePlanFilesDoesNotOverwriteByDefault(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+	outputDir := filepath.Join(root, "output")
+	contextPath := filepath.Join(outputDir, ".agentskeleton", "context.yaml")
+	readmePath := filepath.Join(outputDir, "README.md")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			ProjectRoot: projectDir,
+			OutputDir:   outputDir,
+			ArtifactDir: filepath.Join(outputDir, ".agentskeleton"),
+			ContextPath: contextPath,
+		},
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+		},
+		Structure: Structure{
+			Strategy: "recommended",
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Dir(readmePath), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.WriteFile(readmePath, []byte("keep me"), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	err := runWorkflow([]string{
+		"--project", projectDir,
+		"--output-dir", outputDir,
+		"--write-plan-files",
+		"--format", "yaml",
+	})
+	if err != nil {
+		t.Fatalf("runWorkflow() error = %v", err)
+	}
+
+	data, err := os.ReadFile(readmePath)
+	if err != nil {
+		t.Fatalf("ReadFile() error = %v", err)
+	}
+	if string(data) != "keep me" {
+		t.Fatalf("README.md should not be overwritten by default")
+	}
+}
+
 func TestRunResponseApplyRejectsExamplePathByDefault(t *testing.T) {
 	t.Parallel()
 

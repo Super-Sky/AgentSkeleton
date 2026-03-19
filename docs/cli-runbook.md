@@ -64,6 +64,18 @@ You can run one bundled step with:
 agentskeleton workflow --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
+If you also want the currently supported planned documents to be materialized into the output directory:
+
+```bash
+agentskeleton workflow \
+  --project /path/to/project \
+  --output-dir /path/to/output \
+  --write-plan-files \
+  --format yaml
+```
+
+By default this writes missing files only. Add `--overwrite` only when you intentionally want to replace existing generated docs.
+
 If you already have a host-model response:
 
 ```bash
@@ -73,6 +85,7 @@ agentskeleton workflow \
   --response-file /path/to/host-response.yaml \
   --attempt 0 \
   --apply \
+  --write-plan-files \
   --docs /path/to/output/README.md,/path/to/output/docs/domain-overview.md \
   --format yaml
 ```

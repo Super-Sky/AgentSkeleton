@@ -39,6 +39,8 @@ Path rules:
 - these artifacts include context state, retry metadata, prompt material, and workflow traces
 - final user-facing documents and skills belong under `<output-dir>/...`
 - deleting `<output-dir>/.agentskeleton` should cleanly remove AgentSkeleton's process state without affecting final docs
+- `workflow --write-plan-files` writes supported planned documents into `<output-dir>/...`
+- existing files are preserved unless `--overwrite` is explicitly set
 
 ## Context Schema
 
@@ -255,11 +257,14 @@ Run one full guidance step that bundles `plan`, `prompt`, and `next`, with optio
 - load context
 - optionally evaluate `--response-file`
 - if `--apply` and decision is `accept`, update context
+- if `--write-plan-files` is set, render supported planned documents into `<output-dir>/...`
+- when writing planned files, skip existing files unless `--overwrite` is set
 - return:
   - `plan` output
   - `prompt` output
   - `next` output
   - optional response evaluation result
+  - optional file write result
 
 ## Output Format Policy
 

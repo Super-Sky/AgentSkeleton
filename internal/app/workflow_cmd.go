@@ -13,6 +13,7 @@ type WorkflowOutput struct {
 	Prompt       PromptOutput `yaml:"prompt" json:"prompt"`
 	Next         NextOutput   `yaml:"next" json:"next"`
 	ResponseEval *RetryResult `yaml:"response_eval,omitempty" json:"response_eval,omitempty"`
+	WriteResult  *writeResult `yaml:"write_result,omitempty" json:"write_result,omitempty"`
 }
 
 func runWorkflow(args []string) error {
@@ -27,6 +28,8 @@ func runWorkflow(args []string) error {
 	attempt := fs.Int("attempt", 0, "current retry attempt (0-based)")
 	apply := fs.Bool("apply", false, "apply accepted response into context")
 	allowExampleWrite := fs.Bool("allow-example-write", false, "allow writing context under examples/")
+	writePlanFiles := fs.Bool("write-plan-files", false, "write planned document skeleton files into output-dir")
+	overwrite := fs.Bool("overwrite", false, "overwrite existing generated plan files")
 	question := fs.String("question", "", "question id to update in context")
 	docs := fs.String("docs", "", "comma-separated docs to mark as generated when accepted")
 	if err := fs.Parse(args); err != nil {
@@ -103,6 +106,15 @@ func runWorkflow(args []string) error {
 		Questions:          questionsForMode(ctx.Project.Mode),
 	}
 
+	var fileWriteResult *writeResult
+	if *writePlanFiles {
+		res, err := renderPlannedFiles(ctx, plan, *overwrite)
+		if err != nil {
+			return err
+		}
+		fileWriteResult = &res
+	}
+
 	out := WorkflowOutput{
 		Command:      "workflow",
 		ContextPath:  resolvedContext,
@@ -110,6 +122,7 @@ func runWorkflow(args []string) error {
 		Prompt:       prompt,
 		Next:         next,
 		ResponseEval: responseEval,
+		WriteResult:  fileWriteResult,
 	}
 	return printOutput(*format, out)
 }

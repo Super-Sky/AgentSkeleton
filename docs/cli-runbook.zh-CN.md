@@ -64,6 +64,18 @@ agentskeleton next --project /path/to/project --output-dir /path/to/output --for
 agentskeleton workflow --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
+如果你希望把当前已支持的计划文档直接落到输出目录：
+
+```bash
+agentskeleton workflow \
+  --project /path/to/project \
+  --output-dir /path/to/output \
+  --write-plan-files \
+  --format yaml
+```
+
+默认只写缺失文件；只有你明确想覆盖已有生成文档时，才传 `--overwrite`。
+
 如果已经拿到宿主模型返回：
 
 ```bash
@@ -73,6 +85,7 @@ agentskeleton workflow \
   --response-file /path/to/host-response.yaml \
   --attempt 0 \
   --apply \
+  --write-plan-files \
   --docs /path/to/output/README.md,/path/to/output/docs/domain-overview.md \
   --format yaml
 ```
