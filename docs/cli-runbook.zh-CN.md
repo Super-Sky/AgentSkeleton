@@ -114,3 +114,17 @@ agentskeleton prompt \
 2. 让宿主模型只修复结构，不重写全部内容。
 3. 使用递增的 `--attempt` 再次校验。
 4. 如果变成 `unresolved`，停止自动写回并转人工处理。
+
+你也可以直接在 `workflow` 中打包这个过程：
+
+```bash
+agentskeleton workflow \
+  --project /path/to/project \
+  --output-dir /path/to/output \
+  --response-file /path/to/host-response.yaml \
+  --attempt 0 \
+  --auto-repair \
+  --format yaml
+```
+
+当返回结果可重试时，输出里会包含 `auto_repair` 块，其中带有下一次尝试编号、校验错误、修复提示词和宿主模型循环说明。

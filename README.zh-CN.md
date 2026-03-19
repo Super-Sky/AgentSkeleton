@@ -109,7 +109,7 @@ CLI 预期会成为用户的主要入口。首批命令方向包括：
 - `next`：输出下一轮对话应追问的问题
 - `response`：校验/评估模型输出，并可将合法答案写回上下文
 - `prompt`：基于上下文生成初始提示或修复提示
-- `workflow`：执行一轮打包流程（`plan + prompt + next`），可选写回模型返回，并可通过 `--write-plan-files` 落地当前支持的计划文档
+- `workflow`：执行一轮打包流程（`plan + prompt + next`），可选写回模型返回，并可通过 `--write-plan-files` 落地当前支持的计划文档，或通过 `--auto-repair` 输出重试修复包
 
 请参考 `docs/agent-prompts.zh-CN.md`，了解宿主模型如何消费这些输出并进行重试。
 请参考 `docs/cli-runbook.zh-CN.md` 查看完整命令链路。

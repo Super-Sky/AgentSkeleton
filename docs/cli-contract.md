@@ -41,6 +41,7 @@ Path rules:
 - deleting `<output-dir>/.agentskeleton` should cleanly remove AgentSkeleton's process state without affecting final docs
 - `workflow --write-plan-files` writes supported planned documents into `<output-dir>/...`
 - existing files are preserved unless `--overwrite` is explicitly set
+- `workflow --auto-repair` emits a repair package when response evaluation returns `retry`
 
 ## Context Schema
 
@@ -259,12 +260,18 @@ Run one full guidance step that bundles `plan`, `prompt`, and `next`, with optio
 - if `--apply` and decision is `accept`, update context
 - if `--write-plan-files` is set, render supported planned documents into `<output-dir>/...`
 - when writing planned files, skip existing files unless `--overwrite` is set
+- if `--auto-repair` is set and response evaluation returns `retry`, emit:
+  - `auto_repair.next_attempt`
+  - `auto_repair.validation_errors`
+  - `auto_repair.prompt`
+  - `auto_repair.instructions`
 - return:
   - `plan` output
   - `prompt` output
   - `next` output
   - optional response evaluation result
   - optional file write result
+  - optional auto-repair package
 
 ## Output Format Policy
 

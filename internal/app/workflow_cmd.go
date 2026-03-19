@@ -6,14 +6,38 @@ import (
 	"os"
 )
 
+type AutoRepairOutput struct {
+	NextAttempt      int          `yaml:"next_attempt" json:"next_attempt"`
+	ValidationErrors []string     `yaml:"validation_errors" json:"validation_errors"`
+	Prompt           PromptOutput `yaml:"prompt" json:"prompt"`
+	Instructions     []string     `yaml:"instructions" json:"instructions"`
+}
+
 type WorkflowOutput struct {
-	Command      string       `yaml:"command" json:"command"`
-	ContextPath  string       `yaml:"context_path" json:"context_path"`
-	Plan         PlanOutput   `yaml:"plan" json:"plan"`
-	Prompt       PromptOutput `yaml:"prompt" json:"prompt"`
-	Next         NextOutput   `yaml:"next" json:"next"`
-	ResponseEval *RetryResult `yaml:"response_eval,omitempty" json:"response_eval,omitempty"`
-	WriteResult  *writeResult `yaml:"write_result,omitempty" json:"write_result,omitempty"`
+	Command      string            `yaml:"command" json:"command"`
+	ContextPath  string            `yaml:"context_path" json:"context_path"`
+	Plan         PlanOutput        `yaml:"plan" json:"plan"`
+	Prompt       PromptOutput      `yaml:"prompt" json:"prompt"`
+	Next         NextOutput        `yaml:"next" json:"next"`
+	ResponseEval *RetryResult      `yaml:"response_eval,omitempty" json:"response_eval,omitempty"`
+	WriteResult  *writeResult      `yaml:"write_result,omitempty" json:"write_result,omitempty"`
+	AutoRepair   *AutoRepairOutput `yaml:"auto_repair,omitempty" json:"auto_repair,omitempty"`
+}
+
+type workflowConfig struct {
+	ContextPath       string
+	ProjectRoot       string
+	OutputDir         string
+	Schema            string
+	ResponseFile      string
+	Attempt           int
+	Apply             bool
+	AllowExampleWrite bool
+	WritePlanFiles    bool
+	Overwrite         bool
+	Question          string
+	Docs              string
+	AutoRepair        bool
 }
 
 func runWorkflow(args []string) error {
@@ -30,6 +54,7 @@ func runWorkflow(args []string) error {
 	allowExampleWrite := fs.Bool("allow-example-write", false, "allow writing context under examples/")
 	writePlanFiles := fs.Bool("write-plan-files", false, "write planned document skeleton files into output-dir")
 	overwrite := fs.Bool("overwrite", false, "overwrite existing generated plan files")
+	autoRepair := fs.Bool("auto-repair", false, "when decision is retry, emit a repair package for the next host-model turn")
 	question := fs.String("question", "", "question id to update in context")
 	docs := fs.String("docs", "", "comma-separated docs to mark as generated when accepted")
 	if err := fs.Parse(args); err != nil {
@@ -45,31 +70,54 @@ func runWorkflow(args []string) error {
 	}
 	resolvedContext := resolveContextPath(outputRoot, *contextPath, contextSet)
 
+	out, err := executeWorkflow(workflowConfig{
+		ContextPath:       resolvedContext,
+		ProjectRoot:       projectRoot,
+		OutputDir:         outputRoot,
+		Schema:            *schema,
+		ResponseFile:      *responseFile,
+		Attempt:           *attempt,
+		Apply:             *apply,
+		AllowExampleWrite: *allowExampleWrite,
+		WritePlanFiles:    *writePlanFiles,
+		Overwrite:         *overwrite,
+		Question:          *question,
+		Docs:              *docs,
+		AutoRepair:        *autoRepair,
+	})
+	if err != nil {
+		return err
+	}
+
+	return printOutput(*format, out)
+}
+
+func executeWorkflow(cfg workflowConfig) (WorkflowOutput, error) {
 	var responseEval *RetryResult
-	if *responseFile != "" {
-		data, err := os.ReadFile(*responseFile)
+	if cfg.ResponseFile != "" {
+		data, err := os.ReadFile(cfg.ResponseFile)
 		if err != nil {
-			return fmt.Errorf("read response file: %w", err)
+			return WorkflowOutput{}, fmt.Errorf("read response file: %w", err)
 		}
 		envelope, err := parseEnvelope(data)
 		if err != nil {
-			return err
+			return WorkflowOutput{}, err
 		}
-		result := EvaluateResponse(DefaultRetryPolicy(), *attempt, envelope)
+		result := EvaluateResponse(DefaultRetryPolicy(), cfg.Attempt, envelope)
 		responseEval = &result
-		if *apply {
-			if _, err := applyAcceptedResponse(resolvedContext, *question, *docs, *allowExampleWrite, result, envelope); err != nil {
-				return err
+		if cfg.Apply {
+			if _, err := applyAcceptedResponse(cfg.ContextPath, cfg.Question, cfg.Docs, cfg.AllowExampleWrite, result, envelope); err != nil {
+				return WorkflowOutput{}, err
 			}
 		}
 	}
 
-	ctx, err := loadContext(resolvedContext)
+	ctx, err := loadContext(cfg.ContextPath)
 	if err != nil {
-		return err
+		return WorkflowOutput{}, err
 	}
 	if err := validateMode(ctx.Project.Mode); err != nil {
-		return err
+		return WorkflowOutput{}, err
 	}
 
 	plan := PlanOutput{
@@ -86,15 +134,15 @@ func runWorkflow(args []string) error {
 	}
 
 	promptMode := "initial"
-	promptText := buildInitialPrompt(ctx, *schema)
+	promptText := buildInitialPrompt(ctx, cfg.Schema)
 	if responseEval != nil && responseEval.Decision == RetryDecisionRetry {
 		promptMode = "repair"
-		promptText = buildRepairPrompt(ctx, *schema, responseEval.ValidationErrs)
+		promptText = buildRepairPrompt(ctx, cfg.Schema, responseEval.ValidationErrs)
 	}
 	prompt := PromptOutput{
 		Command:    "prompt",
 		Mode:       promptMode,
-		Schema:     *schema,
+		Schema:     cfg.Schema,
 		Questions:  append([]string{}, ctx.Conversation.OpenQuestions...),
 		PromptText: promptText,
 	}
@@ -107,22 +155,46 @@ func runWorkflow(args []string) error {
 	}
 
 	var fileWriteResult *writeResult
-	if *writePlanFiles {
-		res, err := renderPlannedFiles(ctx, plan, *overwrite)
+	if cfg.WritePlanFiles {
+		res, err := renderPlannedFiles(ctx, plan, cfg.Overwrite)
 		if err != nil {
-			return err
+			return WorkflowOutput{}, err
 		}
 		fileWriteResult = &res
 	}
 
-	out := WorkflowOutput{
+	var autoRepairOut *AutoRepairOutput
+	if cfg.AutoRepair && responseEval != nil && responseEval.Decision == RetryDecisionRetry {
+		autoRepairOut = buildAutoRepairOutput(ctx, cfg.Schema, cfg.Attempt+1, responseEval.ValidationErrs)
+	}
+
+	return WorkflowOutput{
 		Command:      "workflow",
-		ContextPath:  resolvedContext,
+		ContextPath:  cfg.ContextPath,
 		Plan:         plan,
 		Prompt:       prompt,
 		Next:         next,
 		ResponseEval: responseEval,
 		WriteResult:  fileWriteResult,
+		AutoRepair:   autoRepairOut,
+	}, nil
+}
+
+func buildAutoRepairOutput(ctx Context, schema string, nextAttempt int, validationErrs []string) *AutoRepairOutput {
+	return &AutoRepairOutput{
+		NextAttempt:      nextAttempt,
+		ValidationErrors: append([]string{}, validationErrs...),
+		Prompt: PromptOutput{
+			Command:    "prompt",
+			Mode:       "repair",
+			Schema:     schema,
+			Questions:  append([]string{}, ctx.Conversation.OpenQuestions...),
+			PromptText: buildRepairPrompt(ctx, schema, validationErrs),
+		},
+		Instructions: []string{
+			"ask the host model to repair structure only and keep semantic intent unchanged",
+			"validate the repaired response with the incremented attempt value before applying it",
+			"only write accepted responses back into <output-dir>/.agentskeleton/context.yaml",
+		},
 	}
-	return printOutput(*format, out)
 }

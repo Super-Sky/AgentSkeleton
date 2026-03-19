@@ -114,3 +114,17 @@ agentskeleton prompt \
 2. Ask host model to repair structure only.
 3. Validate again with incremented `--attempt`.
 4. If decision becomes `unresolved`, stop applying and escalate to manual review.
+
+You can bundle this into `workflow` as well:
+
+```bash
+agentskeleton workflow \
+  --project /path/to/project \
+  --output-dir /path/to/output \
+  --response-file /path/to/host-response.yaml \
+  --attempt 0 \
+  --auto-repair \
+  --format yaml
+```
+
+When the response is retryable, the output includes an `auto_repair` block with the next attempt number, validation errors, a repair prompt, and instructions for the host-model loop.

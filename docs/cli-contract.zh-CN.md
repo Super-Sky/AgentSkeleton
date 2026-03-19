@@ -41,6 +41,7 @@ CLI 应维护一个项目上下文文件。
 - 删除 `<output-dir>/.agentskeleton` 应能清理 AgentSkeleton 过程状态，而不影响最终文档
 - `workflow --write-plan-files` 会把已支持的计划文档写入 `<output-dir>/...`
 - 已存在文件默认跳过，只有显式传入 `--overwrite` 才会覆盖
+- `workflow --auto-repair` 会在响应评估结果为 `retry` 时输出修复包
 
 ## 上下文结构
 
@@ -259,12 +260,18 @@ questions:
 - 若 `--apply` 且决策为 `accept`，写回上下文
 - 如果传入 `--write-plan-files`，则把当前已支持的计划文档渲染到 `<output-dir>/...`
 - 写入计划文档时默认跳过已存在文件，除非传入 `--overwrite`
+- 如果传入 `--auto-repair` 且响应评估结果为 `retry`，则输出：
+  - `auto_repair.next_attempt`
+  - `auto_repair.validation_errors`
+  - `auto_repair.prompt`
+  - `auto_repair.instructions`
 - 返回：
   - `plan` 输出
   - `prompt` 输出
   - `next` 输出
   - 可选响应评估结果
   - 可选文件写入结果
+  - 可选自动修复包
 
 ## 输出格式策略
 

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"strings"
@@ -737,6 +738,136 @@ func TestRunWorkflowWritePlanFilesDoesNotOverwriteByDefault(t *testing.T) {
 	}
 }
 
+func TestExecuteWorkflowAutoRepair(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+	outputDir := filepath.Join(root, "output")
+	contextPath := filepath.Join(outputDir, ".agentskeleton", "context.yaml")
+	responsePath := filepath.Join(root, "invalid-response.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			ProjectRoot: projectDir,
+			OutputDir:   outputDir,
+			ArtifactDir: filepath.Join(outputDir, ".agentskeleton"),
+			ContextPath: contextPath,
+		},
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+		},
+		Structure: Structure{
+			Strategy: "recommended",
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"project_summary", "deployment_shape"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+	if err := os.WriteFile(responsePath, []byte("status: invalid\nerrors:\n  - missing project_summary\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	out, err := executeWorkflow(workflowConfig{
+		ContextPath:  contextPath,
+		ProjectRoot:  projectDir,
+		OutputDir:    outputDir,
+		Schema:       "question-answer-set-v1",
+		ResponseFile: responsePath,
+		Attempt:      0,
+		AutoRepair:   true,
+	})
+	if err != nil {
+		t.Fatalf("executeWorkflow() error = %v", err)
+	}
+
+	if out.ResponseEval == nil || out.ResponseEval.Decision != RetryDecisionRetry {
+		t.Fatalf("response decision = %+v, want retry", out.ResponseEval)
+	}
+	if out.AutoRepair == nil {
+		t.Fatalf("auto repair output should be present")
+	}
+	if out.AutoRepair.NextAttempt != 1 {
+		t.Fatalf("next_attempt = %d, want 1", out.AutoRepair.NextAttempt)
+	}
+	if out.AutoRepair.Prompt.Mode != "repair" {
+		t.Fatalf("auto repair prompt mode = %q, want repair", out.AutoRepair.Prompt.Mode)
+	}
+	if !strings.Contains(out.AutoRepair.Prompt.PromptText, "Repair structure only") {
+		t.Fatalf("auto repair prompt missing repair instruction: %s", out.AutoRepair.Prompt.PromptText)
+	}
+}
+
+func TestRunWorkflowAutoRepairJSONOutput(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+	outputDir := filepath.Join(root, "output")
+	contextPath := filepath.Join(outputDir, ".agentskeleton", "context.yaml")
+	responsePath := filepath.Join(root, "invalid-response.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			ProjectRoot: projectDir,
+			OutputDir:   outputDir,
+			ArtifactDir: filepath.Join(outputDir, ".agentskeleton"),
+			ContextPath: contextPath,
+		},
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+		},
+		Structure: Structure{
+			Strategy: "recommended",
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"project_summary"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+	if err := os.WriteFile(responsePath, []byte("status: invalid\nerrors:\n  - missing project_summary\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	output := captureStdout(t, func() {
+		err := runWorkflow([]string{
+			"--project", projectDir,
+			"--output-dir", outputDir,
+			"--response-file", responsePath,
+			"--attempt", "0",
+			"--auto-repair",
+			"--format", "json",
+		})
+		if err != nil {
+			t.Fatalf("runWorkflow() error = %v", err)
+		}
+	})
+
+	if !strings.Contains(output, "\"auto_repair\"") {
+		t.Fatalf("workflow output missing auto_repair block: %s", output)
+	}
+	if !strings.Contains(output, "\"next_attempt\": 1") {
+		t.Fatalf("workflow output missing next_attempt: %s", output)
+	}
+}
+
 func TestRunResponseApplyRejectsExamplePathByDefault(t *testing.T) {
 	t.Parallel()
 
@@ -765,4 +896,28 @@ func TestRunResponseApplyRejectsExamplePathByDefault(t *testing.T) {
 	if !strings.Contains(err.Error(), "refusing to write example context path") {
 		t.Fatalf("unexpected error: %v", err)
 	}
+}
+
+func captureStdout(t *testing.T, fn func()) string {
+	t.Helper()
+
+	original := os.Stdout
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("os.Pipe() error = %v", err)
+	}
+	os.Stdout = writer
+
+	done := make(chan string, 1)
+	go func() {
+		var buf bytes.Buffer
+		_, _ = buf.ReadFrom(reader)
+		done <- buf.String()
+	}()
+
+	fn()
+
+	_ = writer.Close()
+	os.Stdout = original
+	return <-done
 }
