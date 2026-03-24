@@ -268,6 +268,7 @@ Validate host-model responses, evaluate retry decisions, and optionally apply ac
   - write answers into `.agentskeleton/context.yaml`
   - remove answered question from `open_questions`
   - optionally mark docs as generated
+  - return `post_apply_plan` so the host model can immediately see refreshed `current_priority` and `review_candidates`
 
 By default, accepted `data` fields are applied in batch. If `--question` is provided, only that field is applied.
 

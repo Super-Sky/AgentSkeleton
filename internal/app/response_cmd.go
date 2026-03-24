@@ -65,6 +65,13 @@ func runResponse(args []string) error {
 			return err
 		}
 		output["context_updated"] = updated
+		if updated {
+			ctx, err := loadContext(resolvedContext)
+			if err != nil {
+				return err
+			}
+			output["post_apply_plan"] = buildPlanOutput(ctx)
+		}
 	}
 
 	return printOutput(*format, output)

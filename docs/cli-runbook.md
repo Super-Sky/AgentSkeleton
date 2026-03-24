@@ -49,6 +49,7 @@ agentskeleton response \
 ```
 
 If the response `data` contains multiple fields, all of them are applied by default. Use `--question <id>` only when you want to apply a single field.
+When apply succeeds, the response output also includes `post_apply_plan`, so the host model can continue from refreshed priority and review targets without running `plan` again.
 
 5. Continue with next questions:
 

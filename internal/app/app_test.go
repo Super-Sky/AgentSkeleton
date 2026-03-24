@@ -11,8 +11,6 @@ import (
 )
 
 func TestRunInitDocsCreatesContext(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
 
@@ -35,8 +33,6 @@ func TestRunInitDocsCreatesContext(t *testing.T) {
 }
 
 func TestRunInitDocsResolvesProjectDefaultContextAndOutputDir(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	projectDir := filepath.Join(root, "project")
 
@@ -224,8 +220,6 @@ func TestEvaluateResponse(t *testing.T) {
 }
 
 func TestRunResponseApplyAcceptUpdatesContext(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
 	respPath := filepath.Join(root, "resp.yaml")
@@ -292,9 +286,72 @@ func TestRunResponseApplyAcceptUpdatesContext(t *testing.T) {
 	}
 }
 
-func TestRunResponseApplyInvalidDoesNotUpdateContext(t *testing.T) {
-	t.Parallel()
+func TestRunResponseApplyOutputsPostApplyPlan(t *testing.T) {
+	root := t.TempDir()
+	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
+	respPath := filepath.Join(root, "resp.yaml")
 
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			OutputDir: root,
+		},
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:         "discovery",
+			GeneratedDocs: []string{"README.md"},
+			MissingDocs:   []string{"AGENTS.md", "docs/domain-overview.md"},
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"project_summary", "ownership_model"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+	resp := "" +
+		"status: ok\n" +
+		"schema: question-answer-set-v1\n" +
+		"data:\n" +
+		"  project_summary: summary text\n" +
+		"errors: []\n" +
+		"raw_text: \"\"\n"
+	if err := os.WriteFile(respPath, []byte(resp), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	output := captureStdout(t, func() {
+		err := runResponse([]string{
+			"--file", respPath,
+			"--context", contextPath,
+			"--apply",
+			"--question", "project_summary",
+			"--docs", "docs/domain-overview.md",
+			"--format", "json",
+		})
+		if err != nil {
+			t.Fatalf("runResponse() error = %v", err)
+		}
+	})
+
+	if !strings.Contains(output, "\"post_apply_plan\"") {
+		t.Fatalf("response output missing post_apply_plan: %s", output)
+	}
+	if !strings.Contains(output, "\"current_priority\"") {
+		t.Fatalf("response output missing current_priority: %s", output)
+	}
+	if !strings.Contains(output, "\"review_candidates\"") {
+		t.Fatalf("response output missing review_candidates: %s", output)
+	}
+	if !strings.Contains(output, "\"path\": \"AGENTS.md\"") {
+		t.Fatalf("response output missing next priority path: %s", output)
+	}
+}
+
+func TestRunResponseApplyInvalidDoesNotUpdateContext(t *testing.T) {
 	root := t.TempDir()
 	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
 	respPath := filepath.Join(root, "resp.yaml")
@@ -349,8 +406,6 @@ func TestRunResponseApplyInvalidDoesNotUpdateContext(t *testing.T) {
 }
 
 func TestRunResponseApplyAcceptUpdatesMultipleAnswers(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
 	respPath := filepath.Join(root, "resp.yaml")
@@ -423,8 +478,6 @@ func TestRunResponseApplyAcceptUpdatesMultipleAnswers(t *testing.T) {
 }
 
 func TestRunPromptInitial(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
 
@@ -453,8 +506,6 @@ func TestRunPromptInitial(t *testing.T) {
 }
 
 func TestRunPromptRepairRequiresErrors(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
 
@@ -483,8 +534,6 @@ func TestRunPromptRepairRequiresErrors(t *testing.T) {
 }
 
 func TestRunWorkflowInitial(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
 
@@ -516,8 +565,6 @@ func TestRunWorkflowInitial(t *testing.T) {
 }
 
 func TestRunWorkflowApplyAcceptedResponse(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	contextPath := filepath.Join(root, ".agentskeleton", "context.yaml")
 	respPath := filepath.Join(root, "response.yaml")
@@ -583,8 +630,6 @@ func TestRunWorkflowApplyAcceptedResponse(t *testing.T) {
 }
 
 func TestRunPlanResolvesContextFromOutputDir(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	projectDir := filepath.Join(root, "project")
 	outputDir := filepath.Join(projectDir, "docs-generated")
@@ -625,8 +670,6 @@ func TestRunPlanResolvesContextFromOutputDir(t *testing.T) {
 }
 
 func TestRunWorkflowWritePlanFiles(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	projectDir := filepath.Join(root, "project")
 	outputDir := filepath.Join(root, "output")
@@ -693,8 +736,6 @@ func TestRunWorkflowWritePlanFiles(t *testing.T) {
 }
 
 func TestRunWorkflowWritePlanFilesDoesNotOverwriteByDefault(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	projectDir := filepath.Join(root, "project")
 	outputDir := filepath.Join(root, "output")
@@ -871,8 +912,6 @@ func TestBuildFocusDocOutputUsesCurrentPriority(t *testing.T) {
 }
 
 func TestRunFocusDocJSONOutput(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	projectDir := filepath.Join(root, "project")
 	outputDir := filepath.Join(root, "output")
@@ -995,8 +1034,6 @@ func TestExecuteWorkflowAutoRepair(t *testing.T) {
 }
 
 func TestRunWorkflowAutoRepairJSONOutput(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	projectDir := filepath.Join(root, "project")
 	outputDir := filepath.Join(root, "output")
@@ -1160,8 +1197,6 @@ func TestSanitizeTraceSegment(t *testing.T) {
 }
 
 func TestRunResponseApplyRejectsExamplePathByDefault(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	respPath := filepath.Join(root, "resp.yaml")
 	resp := "" +

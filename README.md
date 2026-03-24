@@ -112,6 +112,7 @@ The CLI is expected to become the main entry point for users. Initial command ar
 - `workflow`: run one bundled step (`plan + prompt + next`) with optional response apply, planned file materialization via `--write-plan-files`, retry repair packaging via `--auto-repair`, and process snapshots via `--persist-trace`
 - `plan` and `workflow` now expose `current_priority` so the host model knows which document should be drafted next
 - `focus-doc` turns that priority into a drafting context package, while `review_candidates` expose backtracking work for already-generated documents
+- `response --apply` now returns `post_apply_plan`, so hosts can continue immediately after a successful write-back
 
 See `docs/agent-prompts.md` for the host-model prompt expectations so structured retries work.
 See `docs/cli-runbook.md` for the end-to-end command sequence.

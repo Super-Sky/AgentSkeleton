@@ -49,6 +49,7 @@ agentskeleton response \
 ```
 
 如果返回 `data` 中包含多个字段，默认会批量写回。只有在你希望单字段写回时才需要加 `--question <id>`。
+当写回成功时，`response` 输出里还会带上 `post_apply_plan`，宿主模型无需再次执行 `plan`，就能直接拿到刷新后的优先文档和回溯候选。
 
 5. 继续下一轮问题：
 

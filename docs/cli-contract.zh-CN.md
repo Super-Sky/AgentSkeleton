@@ -268,6 +268,7 @@ questions:
   - 更新 `.agentskeleton/context.yaml`
   - 将已回答问题从 `open_questions` 移除
   - 可选将文档标记为已生成
+  - 返回 `post_apply_plan`，让宿主模型立即获得刷新后的 `current_priority` 和 `review_candidates`
 
 默认会批量写回 `data` 中的所有字段；如果提供 `--question`，则仅写回该字段。
 
