@@ -886,7 +886,7 @@ func TestBuildFocusDocOutputUsesCurrentPriority(t *testing.T) {
 		},
 		Documentation: Documentation{
 			Phase:         "discovery",
-			GeneratedDocs: []string{"README.md"},
+			GeneratedDocs: []string{"README.md", "docs/domain-overview.md"},
 		},
 		Conversation: Conversation{
 			OpenQuestions: []string{"ownership_model"},
@@ -908,6 +908,43 @@ func TestBuildFocusDocOutputUsesCurrentPriority(t *testing.T) {
 	}
 	if !slices.Contains(out.SuggestedSections, "Working Rules") {
 		t.Fatalf("suggested_sections = %#v", out.SuggestedSections)
+	}
+}
+
+func TestBuildFocusDocOutputIncludesReviewAfterDraft(t *testing.T) {
+	t.Parallel()
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			OutputDir: "/tmp/project",
+		},
+		Project: Project{
+			Name:    "MallHub",
+			Summary: "AI-friendly mall docs",
+			Mode:    "new",
+		},
+		Documentation: Documentation{
+			Phase:         "discovery",
+			GeneratedDocs: []string{"README.md", "docs/domain-overview.md"},
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"deployment_shape", "ownership_model"},
+		},
+	}
+
+	out, err := buildFocusDocOutput(ctx, buildPlanOutput(ctx), "docs/domain-overview.md")
+	if err != nil {
+		t.Fatalf("buildFocusDocOutput() error = %v", err)
+	}
+	if len(out.ReviewAfterDraft) != 1 {
+		t.Fatalf("review_after_draft len = %d, want 1", len(out.ReviewAfterDraft))
+	}
+	if out.ReviewAfterDraft[0].Path != "README.md" {
+		t.Fatalf("review_after_draft[0].path = %q, want README.md", out.ReviewAfterDraft[0].Path)
+	}
+	if !slices.Contains(out.ReviewAfterDraft[0].TriggeredBy, "project_summary") {
+		t.Fatalf("review_after_draft triggers = %#v", out.ReviewAfterDraft[0].TriggeredBy)
 	}
 }
 
@@ -933,13 +970,16 @@ func TestRunFocusDocJSONOutput(t *testing.T) {
 		Documentation: Documentation{
 			Phase:          "discovery",
 			ReleaseVersion: "v0.0.0",
-			GeneratedDocs:  []string{"README.md"},
+			GeneratedDocs:  []string{"README.md", "docs/domain-overview.md"},
 		},
 		Structure: Structure{
 			Strategy: "recommended",
 		},
 		Conversation: Conversation{
 			OpenQuestions: []string{"ownership_model"},
+			AnsweredQuestions: []QuestionAnswer{
+				{ID: "project_summary", Value: "AI-friendly mall docs"},
+			},
 		},
 	}
 	if err := writeContext(contextPath, ctx); err != nil {
@@ -950,6 +990,7 @@ func TestRunFocusDocJSONOutput(t *testing.T) {
 		err := runFocusDoc([]string{
 			"--project", projectDir,
 			"--output-dir", outputDir,
+			"--path", "docs/domain-overview.md",
 			"--format", "json",
 		})
 		if err != nil {
@@ -959,8 +1000,11 @@ func TestRunFocusDocJSONOutput(t *testing.T) {
 	if !strings.Contains(output, "\"command\": \"focus-doc\"") {
 		t.Fatalf("focus-doc output missing command: %s", output)
 	}
-	if !strings.Contains(output, "\"path\": \"AGENTS.md\"") {
+	if !strings.Contains(output, "\"path\": \"docs/domain-overview.md\"") {
 		t.Fatalf("focus-doc output missing focused path: %s", output)
+	}
+	if !strings.Contains(output, "\"review_after_draft\"") {
+		t.Fatalf("focus-doc output missing review_after_draft: %s", output)
 	}
 }
 

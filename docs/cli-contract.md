@@ -181,6 +181,7 @@ Produce a document drafting context package for the current priority document, o
 - available drafting context
 - suggested sections
 - writing rules
+- generated documents that should likely be reviewed after this draft narrows shared context
 - next actions after the draft is produced
 
 ## `next`

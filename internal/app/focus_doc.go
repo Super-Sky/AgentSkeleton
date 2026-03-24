@@ -16,6 +16,7 @@ type FocusDocOutput struct {
 	AvailableContext  map[string]string `yaml:"available_context" json:"available_context"`
 	SuggestedSections []string          `yaml:"suggested_sections" json:"suggested_sections"`
 	WritingRules      []string          `yaml:"writing_rules" json:"writing_rules"`
+	ReviewAfterDraft  []ReviewCandidate `yaml:"review_after_draft,omitempty" json:"review_after_draft,omitempty"`
 	NextAfterDraft    []string          `yaml:"next_after_draft" json:"next_after_draft"`
 }
 
@@ -77,6 +78,7 @@ func buildFocusDocOutput(ctx Context, plan PlanOutput, explicitPath string) (Foc
 		AvailableContext:  availableContextForDocument(ctx, required),
 		SuggestedSections: suggestedSectionsForDocument(ctx.Project.Mode, doc.Path),
 		WritingRules:      writingRulesForDocument(),
+		ReviewAfterDraft:  reviewAfterDraft(ctx, doc.Path, required),
 		NextAfterDraft:    nextAfterDraft(plan, doc.Path),
 	}, nil
 }
@@ -185,6 +187,7 @@ func writingRulesForDocument() []string {
 func nextAfterDraft(plan PlanOutput, path string) []string {
 	next := []string{
 		fmt.Sprintf("mark %s as generated in context", path),
+		"review review_after_draft targets and update them if the new draft narrows repository meaning",
 		"rerun plan to refresh current_priority",
 	}
 
@@ -200,6 +203,58 @@ func nextAfterDraft(plan PlanOutput, path string) []string {
 	return next
 }
 
+func reviewAfterDraft(ctx Context, focusedPath string, required []string) []ReviewCandidate {
+	if len(required) == 0 {
+		return nil
+	}
+
+	index := map[string]*ReviewCandidate{}
+	for _, question := range questionsForMode(ctx.Project.Mode) {
+		if !containsString(required, question.ID) {
+			continue
+		}
+		for _, docPath := range question.Affects {
+			if docPath == focusedPath || !documentMaterialized(ctx, docPath) {
+				continue
+			}
+			candidate, ok := index[docPath]
+			if !ok {
+				candidate = &ReviewCandidate{
+					Path:        docPath,
+					Reason:      "this generated document shares context with the focused draft and may need convergence afterward",
+					TriggeredBy: []string{},
+				}
+				index[docPath] = candidate
+			}
+			if !containsString(candidate.TriggeredBy, question.ID) {
+				candidate.TriggeredBy = append(candidate.TriggeredBy, question.ID)
+			}
+		}
+	}
+
+	if len(index) == 0 {
+		return nil
+	}
+
+	out := make([]ReviewCandidate, 0, len(index))
+	for _, doc := range recommendedDocumentsForMode(ctx.Project.Mode) {
+		if candidate, ok := index[doc.Path]; ok {
+			out = append(out, *candidate)
+			delete(index, doc.Path)
+		}
+	}
+	for _, doc := range versionedDocuments(ctx.Documentation.ReleaseVersion) {
+		if candidate, ok := index[doc.Path]; ok {
+			out = append(out, *candidate)
+			delete(index, doc.Path)
+		}
+	}
+	for _, candidate := range index {
+		out = append(out, *candidate)
+	}
+	return out
+}
+
 func firstNonEmpty(values ...string) string {
 	for _, v := range values {
 		if v != "" {
@@ -207,4 +262,13 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func containsString(items []string, target string) bool {
+	for _, item := range items {
+		if item == target {
+			return true
+		}
+	}
+	return false
 }

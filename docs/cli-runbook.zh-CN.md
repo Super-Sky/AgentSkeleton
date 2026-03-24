@@ -73,6 +73,8 @@ agentskeleton focus-doc \
   --format yaml
 ```
 
+`focus-doc` 还会返回 `review_after_draft`，用于提示宿主模型：这份文档起草完成后，哪些已生成文档可能需要继续回看和收敛。
+
 ## 单命令流程
 
 你可以用一个命令执行打包步骤：

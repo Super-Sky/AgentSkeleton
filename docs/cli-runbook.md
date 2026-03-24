@@ -73,6 +73,8 @@ agentskeleton focus-doc \
   --format yaml
 ```
 
+`focus-doc` also returns `review_after_draft`, which tells the host model which already-generated documents may need convergence after this draft is completed.
+
 ## One-Command Flow
 
 You can run one bundled step with:
