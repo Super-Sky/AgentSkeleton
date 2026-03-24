@@ -56,6 +56,22 @@ agentskeleton response \
 agentskeleton next --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
+6. 让 CLI 明确告诉宿主当前该起草哪份文档，以及可用上下文：
+
+```bash
+agentskeleton focus-doc --project /path/to/project --output-dir /path/to/output --format yaml
+```
+
+如果你想强制聚焦某一份文档，而不是当前优先文档：
+
+```bash
+agentskeleton focus-doc \
+  --project /path/to/project \
+  --output-dir /path/to/output \
+  --path docs/architecture.md \
+  --format yaml
+```
+
 ## 单命令流程
 
 你可以用一个命令执行打包步骤：
@@ -127,6 +143,16 @@ agentskeleton prompt \
 2. 让宿主模型只修复结构，不重写全部内容。
 3. 使用递增的 `--attempt` 再次校验。
 4. 如果变成 `unresolved`，停止自动写回并转人工处理。
+
+## 回溯收敛
+
+当新的答案会影响已经存在的文档时，`plan` 和 `workflow` 会输出 `review_candidates`。
+
+你应该用它来回看和收敛这些已生成文档，尤其是在以下情况之后：
+
+- `project_summary`、`deployment_shape`、`ownership_model` 这类核心答案被补齐
+- 老项目盘点发现新的目录或模块信息
+- 某次版本文档策略被明确
 
 你也可以直接在 `workflow` 中打包这个过程：
 

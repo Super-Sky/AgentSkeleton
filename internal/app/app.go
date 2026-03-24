@@ -24,6 +24,8 @@ func Run(args []string) error {
 		return runResponse(args[1:])
 	case "prompt":
 		return runPrompt(args[1:])
+	case "focus-doc":
+		return runFocusDoc(args[1:])
 	case "workflow":
 		return runWorkflow(args[1:])
 	case "help", "-h", "--help":
@@ -51,6 +53,7 @@ Usage:
   agentskeleton next [flags]
   agentskeleton response [flags]
   agentskeleton prompt [flags]
+  agentskeleton focus-doc [flags]
   agentskeleton workflow [flags]
 
 Flags:

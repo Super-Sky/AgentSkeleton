@@ -18,6 +18,7 @@ type PlanOutput struct {
 	MissingInformation   []string          `yaml:"missing_information" json:"missing_information"`
 	RecommendedDocuments []DocumentAdvice  `yaml:"recommended_documents" json:"recommended_documents"`
 	CurrentPriority      *PriorityDocument `yaml:"current_priority,omitempty" json:"current_priority,omitempty"`
+	ReviewCandidates     []ReviewCandidate `yaml:"review_candidates,omitempty" json:"review_candidates,omitempty"`
 	NextActions          []string          `yaml:"next_actions" json:"next_actions"`
 }
 
@@ -39,6 +40,12 @@ type PriorityDocument struct {
 	MissingContext  []string `yaml:"missing_context" json:"missing_context"`
 	Ready           bool     `yaml:"ready" json:"ready"`
 	Reason          string   `yaml:"reason" json:"reason"`
+}
+
+type ReviewCandidate struct {
+	Path        string   `yaml:"path" json:"path"`
+	Reason      string   `yaml:"reason" json:"reason"`
+	TriggeredBy []string `yaml:"triggered_by" json:"triggered_by"`
 }
 
 func runPlan(args []string) error {
@@ -88,6 +95,7 @@ func buildPlanOutput(ctx Context) PlanOutput {
 		MissingInformation:   append([]string{}, ctx.Conversation.OpenQuestions...),
 		RecommendedDocuments: recommended,
 		CurrentPriority:      selectPriorityDocument(ctx, recommended),
+		ReviewCandidates:     buildReviewCandidates(ctx),
 		NextActions:          nextActionsForMode(ctx.Project.Mode),
 	}
 }
@@ -260,4 +268,62 @@ func documentMaterialized(ctx Context, path string) bool {
 		}
 	}
 	return false
+}
+
+func buildReviewCandidates(ctx Context) []ReviewCandidate {
+	answered := map[string]struct{}{}
+	for _, qa := range ctx.Conversation.AnsweredQuestions {
+		if qa.Value != "" {
+			answered[qa.ID] = struct{}{}
+		}
+	}
+	if len(answered) == 0 {
+		return nil
+	}
+
+	index := map[string]*ReviewCandidate{}
+	for _, question := range questionsForMode(ctx.Project.Mode) {
+		if _, ok := answered[question.ID]; !ok {
+			continue
+		}
+		for _, docPath := range question.Affects {
+			if !documentMaterialized(ctx, docPath) {
+				continue
+			}
+			candidate, ok := index[docPath]
+			if !ok {
+				candidate = &ReviewCandidate{
+					Path:        docPath,
+					Reason:      "generated document should be reviewed after newly resolved context",
+					TriggeredBy: []string{},
+				}
+				index[docPath] = candidate
+			}
+			if !slices.Contains(candidate.TriggeredBy, question.ID) {
+				candidate.TriggeredBy = append(candidate.TriggeredBy, question.ID)
+			}
+		}
+	}
+
+	if len(index) == 0 {
+		return nil
+	}
+
+	out := make([]ReviewCandidate, 0, len(index))
+	for _, doc := range recommendedDocumentsForMode(ctx.Project.Mode) {
+		if candidate, ok := index[doc.Path]; ok {
+			out = append(out, *candidate)
+			delete(index, doc.Path)
+		}
+	}
+	for _, doc := range versionedDocuments(ctx.Documentation.ReleaseVersion) {
+		if candidate, ok := index[doc.Path]; ok {
+			out = append(out, *candidate)
+			delete(index, doc.Path)
+		}
+	}
+	for _, candidate := range index {
+		out = append(out, *candidate)
+	}
+	return out
 }

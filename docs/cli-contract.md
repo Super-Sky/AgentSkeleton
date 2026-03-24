@@ -86,6 +86,7 @@ Initial command areas:
 - `reshape-docs`
 - `response`
 - `prompt`
+- `focus-doc`
 - `workflow`
 
 This contract defines `plan` and `next` first.
@@ -110,6 +111,8 @@ Summarize the current project state and produce a documentation plan.
 - known project facts
 - unresolved information gaps
 - recommended document list
+- current priority document for drafting
+- review candidates that should be revisited after newly resolved context
 - why each document is needed
 - recommended next actions
 
@@ -146,11 +149,39 @@ current_priority:
     - deployment_shape
   ready: false
   reason: waiting for missing context before reliable drafting
+review_candidates:
+  - path: README.md
+    reason: generated document should be reviewed after newly resolved context
+    triggered_by:
+      - project_summary
 next_actions:
   - ask about deployment shape
   - ask about document ownership
   - draft README.md
 ```
+
+## `focus-doc`
+
+### Purpose
+
+Produce a document drafting context package for the current priority document, or for an explicitly requested document.
+
+### Input
+
+- context file
+- optional `--path` to override the current priority
+
+### Output Requirements
+
+`focus-doc` should return:
+
+- the focused document path and purpose
+- whether the document is ready for drafting
+- required and missing context
+- available drafting context
+- suggested sections
+- writing rules
+- next actions after the draft is produced
 
 ## `next`
 
@@ -272,6 +303,7 @@ Run one full guidance step that bundles `plan`, `prompt`, and `next`, with optio
 - if `--write-plan-files` is set, render supported planned documents into `<output-dir>/...`
 - when writing planned files, skip existing files unless `--overwrite` is set
 - after planned files are created or detected as already existing, write their generated state back into `.agentskeleton/context.yaml`
+- include `plan.review_candidates` so the host model knows which generated documents should be revisited after new context is resolved
 - if `--auto-repair` is set and response evaluation returns `retry`, emit:
   - `auto_repair.next_attempt`
   - `auto_repair.validation_errors`

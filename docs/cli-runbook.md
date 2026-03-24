@@ -56,6 +56,22 @@ If the response `data` contains multiple fields, all of them are applied by defa
 agentskeleton next --project /path/to/project --output-dir /path/to/output --format yaml
 ```
 
+6. Ask the CLI which document should be drafted now and with what context:
+
+```bash
+agentskeleton focus-doc --project /path/to/project --output-dir /path/to/output --format yaml
+```
+
+If you want to focus a specific document instead of the current priority:
+
+```bash
+agentskeleton focus-doc \
+  --project /path/to/project \
+  --output-dir /path/to/output \
+  --path docs/architecture.md \
+  --format yaml
+```
+
 ## One-Command Flow
 
 You can run one bundled step with:
@@ -127,6 +143,16 @@ agentskeleton prompt \
 2. Ask host model to repair structure only.
 3. Validate again with incremented `--attempt`.
 4. If decision becomes `unresolved`, stop applying and escalate to manual review.
+
+## Backtracking
+
+When new answers affect documents that already exist, `plan` and `workflow` expose `review_candidates`.
+
+Use this to revisit generated documents after:
+
+- newly resolved core answers such as `project_summary`, `deployment_shape`, or `ownership_model`
+- legacy reshape discoveries such as `undocumented_directories`
+- release-level documentation decisions
 
 You can bundle this into `workflow` as well:
 

@@ -86,6 +86,7 @@ conversation:
 - `reshape-docs`
 - `response`
 - `prompt`
+- `focus-doc`
 - `workflow`
 
 这个协议优先定义 `plan` 和 `next`。
@@ -110,6 +111,8 @@ conversation:
 - 已知项目信息
 - 未解决的信息缺口
 - 建议文档列表
+- 当前优先起草的文档
+- 因新上下文已解决而需要回看收敛的文档
 - 每个文档存在的目的
 - 推荐下一步动作
 
@@ -146,11 +149,39 @@ current_priority:
     - deployment_shape
   ready: false
   reason: waiting for missing context before reliable drafting
+review_candidates:
+  - path: README.md
+    reason: generated document should be reviewed after newly resolved context
+    triggered_by:
+      - project_summary
 next_actions:
   - ask about deployment shape
   - ask about document ownership
   - draft README.md
 ```
+
+## `focus-doc`
+
+### 目的
+
+为当前优先文档，或显式指定的文档，输出一份可直接用于起草的上下文包。
+
+### 输入
+
+- 上下文文件
+- 可选 `--path`，用于覆盖当前优先文档
+
+### 输出要求
+
+`focus-doc` 应返回：
+
+- 当前聚焦的文档路径与目的
+- 该文档是否已经具备起草条件
+- 必要上下文与缺失上下文
+- 当前可直接用于起草的上下文
+- 建议章节结构
+- 写作规则
+- 起草完成后的下一步动作
 
 ## `next`
 
@@ -272,6 +303,7 @@ questions:
 - 如果传入 `--write-plan-files`，则把当前已支持的计划文档渲染到 `<output-dir>/...`
 - 写入计划文档时默认跳过已存在文件，除非传入 `--overwrite`
 - 当计划文档被创建或检测为已存在时，要把其 generated 状态回写到 `.agentskeleton/context.yaml`
+- 同时输出 `plan.review_candidates`，让宿主模型知道哪些已生成文档需要因新上下文而回看收敛
 - 如果传入 `--auto-repair` 且响应评估结果为 `retry`，则输出：
   - `auto_repair.next_attempt`
   - `auto_repair.validation_errors`

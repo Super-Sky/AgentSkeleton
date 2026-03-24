@@ -795,6 +795,136 @@ func TestBuildPlanOutputSelectsCurrentPriority(t *testing.T) {
 	}
 }
 
+func TestBuildPlanOutputIncludesReviewCandidates(t *testing.T) {
+	t.Parallel()
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			OutputDir: "/tmp/project",
+		},
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:         "discovery",
+			GeneratedDocs: []string{"README.md", "docs/domain-overview.md"},
+		},
+		Conversation: Conversation{
+			AnsweredQuestions: []QuestionAnswer{
+				{ID: "project_summary", Value: "summary"},
+			},
+		},
+	}
+
+	out := buildPlanOutput(ctx)
+	if len(out.ReviewCandidates) != 2 {
+		t.Fatalf("review_candidates len = %d, want 2", len(out.ReviewCandidates))
+	}
+	if out.ReviewCandidates[0].Path != "README.md" {
+		t.Fatalf("first review candidate = %q, want README.md", out.ReviewCandidates[0].Path)
+	}
+	if !slices.Contains(out.ReviewCandidates[0].TriggeredBy, "project_summary") {
+		t.Fatalf("review candidate triggers = %#v", out.ReviewCandidates[0].TriggeredBy)
+	}
+}
+
+func TestBuildFocusDocOutputUsesCurrentPriority(t *testing.T) {
+	t.Parallel()
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			OutputDir: "/tmp/project",
+		},
+		Project: Project{
+			Name:    "MallHub",
+			Summary: "AI-friendly mall docs",
+			Mode:    "new",
+		},
+		Documentation: Documentation{
+			Phase:         "discovery",
+			GeneratedDocs: []string{"README.md"},
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"ownership_model"},
+		},
+	}
+
+	out, err := buildFocusDocOutput(ctx, buildPlanOutput(ctx), "")
+	if err != nil {
+		t.Fatalf("buildFocusDocOutput() error = %v", err)
+	}
+	if out.Path != "AGENTS.md" {
+		t.Fatalf("focus path = %q, want AGENTS.md", out.Path)
+	}
+	if out.Ready {
+		t.Fatalf("focus doc should not be ready when ownership_model is missing")
+	}
+	if out.AvailableContext["project_name"] != "MallHub" {
+		t.Fatalf("available_context.project_name = %q", out.AvailableContext["project_name"])
+	}
+	if !slices.Contains(out.SuggestedSections, "Working Rules") {
+		t.Fatalf("suggested_sections = %#v", out.SuggestedSections)
+	}
+}
+
+func TestRunFocusDocJSONOutput(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+	outputDir := filepath.Join(root, "output")
+	contextPath := filepath.Join(outputDir, ".agentskeleton", "context.yaml")
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			ProjectRoot: projectDir,
+			OutputDir:   outputDir,
+			ArtifactDir: filepath.Join(outputDir, ".agentskeleton"),
+			ContextPath: contextPath,
+		},
+		Project: Project{
+			Name:    "MallHub",
+			Summary: "AI-friendly mall docs",
+			Mode:    "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+			GeneratedDocs:  []string{"README.md"},
+		},
+		Structure: Structure{
+			Strategy: "recommended",
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"ownership_model"},
+		},
+	}
+	if err := writeContext(contextPath, ctx); err != nil {
+		t.Fatalf("writeContext() error = %v", err)
+	}
+
+	output := captureStdout(t, func() {
+		err := runFocusDoc([]string{
+			"--project", projectDir,
+			"--output-dir", outputDir,
+			"--format", "json",
+		})
+		if err != nil {
+			t.Fatalf("runFocusDoc() error = %v", err)
+		}
+	})
+	if !strings.Contains(output, "\"command\": \"focus-doc\"") {
+		t.Fatalf("focus-doc output missing command: %s", output)
+	}
+	if !strings.Contains(output, "\"path\": \"AGENTS.md\"") {
+		t.Fatalf("focus-doc output missing focused path: %s", output)
+	}
+}
+
 func TestExecuteWorkflowAutoRepair(t *testing.T) {
 	t.Parallel()
 
