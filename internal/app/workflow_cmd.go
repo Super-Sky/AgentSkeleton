@@ -130,18 +130,7 @@ func executeWorkflow(cfg workflowConfig) (WorkflowOutput, error) {
 		return WorkflowOutput{}, err
 	}
 
-	plan := PlanOutput{
-		Command:            "plan",
-		ProjectMode:        ctx.Project.Mode,
-		DocumentationPhase: ctx.Documentation.Phase,
-		ReleaseVersion:     ctx.Documentation.ReleaseVersion,
-		KnownFacts:         buildKnownFacts(ctx),
-		MissingInformation: append([]string{}, ctx.Conversation.OpenQuestions...),
-		RecommendedDocuments: append(
-			recommendedDocumentsForMode(ctx.Project.Mode),
-			versionedDocuments(ctx.Documentation.ReleaseVersion)...),
-		NextActions: nextActionsForMode(ctx.Project.Mode),
-	}
+	plan := buildPlanOutput(ctx)
 
 	promptMode := "initial"
 	promptText := buildInitialPrompt(ctx, cfg.Schema)
@@ -169,6 +158,15 @@ func executeWorkflow(cfg workflowConfig) (WorkflowOutput, error) {
 		res, err := renderPlannedFiles(ctx, plan, cfg.Overwrite)
 		if err != nil {
 			return WorkflowOutput{}, err
+		}
+		materialized := append([]string{}, res.Created...)
+		materialized = append(materialized, res.Skipped...)
+		if len(materialized) > 0 {
+			ctx.markGenerated(materialized)
+			if err := writeContext(cfg.ContextPath, ctx); err != nil {
+				return WorkflowOutput{}, err
+			}
+			plan = buildPlanOutput(ctx)
 		}
 		fileWriteResult = &res
 	}

@@ -75,6 +75,7 @@ agentskeleton workflow \
 ```
 
 By default this writes missing files only. Add `--overwrite` only when you intentionally want to replace existing generated docs.
+When files are created or already present, the workflow also writes their generated state back into `<output-dir>/.agentskeleton/context.yaml`.
 
 If you want to keep a structured snapshot of the whole step for auditing or later replay:
 

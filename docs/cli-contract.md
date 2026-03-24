@@ -136,6 +136,16 @@ recommended_documents:
   - path: docs/domain-overview.md
     purpose: shared domain language for humans and models
     status: required
+current_priority:
+  path: README.md
+  purpose: repository entrypoint and summary
+  required_context:
+    - project_summary
+    - deployment_shape
+  missing_context:
+    - deployment_shape
+  ready: false
+  reason: waiting for missing context before reliable drafting
 next_actions:
   - ask about deployment shape
   - ask about document ownership
@@ -261,6 +271,7 @@ Run one full guidance step that bundles `plan`, `prompt`, and `next`, with optio
 - if `--apply` and decision is `accept`, update context
 - if `--write-plan-files` is set, render supported planned documents into `<output-dir>/...`
 - when writing planned files, skip existing files unless `--overwrite` is set
+- after planned files are created or detected as already existing, write their generated state back into `.agentskeleton/context.yaml`
 - if `--auto-repair` is set and response evaluation returns `retry`, emit:
   - `auto_repair.next_attempt`
   - `auto_repair.validation_errors`

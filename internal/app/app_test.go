@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -679,6 +680,16 @@ func TestRunWorkflowWritePlanFiles(t *testing.T) {
 			t.Fatalf("expected generated file missing: %s", path)
 		}
 	}
+
+	updated, err := loadContext(contextPath)
+	if err != nil {
+		t.Fatalf("loadContext() error = %v", err)
+	}
+	for _, doc := range []string{"README.md", "AGENTS.md", "CLAUDE.md", "docs/architecture.md"} {
+		if !slices.Contains(updated.Documentation.GeneratedDocs, doc) {
+			t.Fatalf("generated_docs missing %q: %#v", doc, updated.Documentation.GeneratedDocs)
+		}
+	}
 }
 
 func TestRunWorkflowWritePlanFilesDoesNotOverwriteByDefault(t *testing.T) {
@@ -736,6 +747,51 @@ func TestRunWorkflowWritePlanFilesDoesNotOverwriteByDefault(t *testing.T) {
 	}
 	if string(data) != "keep me" {
 		t.Fatalf("README.md should not be overwritten by default")
+	}
+
+	updated, err := loadContext(contextPath)
+	if err != nil {
+		t.Fatalf("loadContext() error = %v", err)
+	}
+	if !slices.Contains(updated.Documentation.GeneratedDocs, "README.md") {
+		t.Fatalf("existing README.md should still be marked generated: %#v", updated.Documentation.GeneratedDocs)
+	}
+}
+
+func TestBuildPlanOutputSelectsCurrentPriority(t *testing.T) {
+	t.Parallel()
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			OutputDir: "/tmp/project",
+		},
+		Project: Project{
+			Name: "MallHub",
+			Mode: "new",
+		},
+		Documentation: Documentation{
+			Phase:          "discovery",
+			ReleaseVersion: "v0.0.0",
+			GeneratedDocs:  []string{"README.md"},
+		},
+		Conversation: Conversation{
+			OpenQuestions: []string{"ownership_model"},
+		},
+	}
+
+	out := buildPlanOutput(ctx)
+	if out.CurrentPriority == nil {
+		t.Fatalf("current_priority should not be nil")
+	}
+	if out.CurrentPriority.Path != "AGENTS.md" {
+		t.Fatalf("current_priority.path = %q, want %q", out.CurrentPriority.Path, "AGENTS.md")
+	}
+	if out.CurrentPriority.Ready {
+		t.Fatalf("current_priority.Ready = true, want false")
+	}
+	if len(out.CurrentPriority.MissingContext) != 1 || out.CurrentPriority.MissingContext[0] != "ownership_model" {
+		t.Fatalf("current_priority.missing_context = %#v", out.CurrentPriority.MissingContext)
 	}
 }
 

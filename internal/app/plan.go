@@ -3,17 +3,22 @@ package app
 import (
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
+	"slices"
+	"strings"
 )
 
 type PlanOutput struct {
-	Command              string           `yaml:"command" json:"command"`
-	ProjectMode          string           `yaml:"project_mode" json:"project_mode"`
-	DocumentationPhase   string           `yaml:"documentation_phase" json:"documentation_phase"`
-	ReleaseVersion       string           `yaml:"release_version" json:"release_version"`
-	KnownFacts           []Fact           `yaml:"known_facts" json:"known_facts"`
-	MissingInformation   []string         `yaml:"missing_information" json:"missing_information"`
-	RecommendedDocuments []DocumentAdvice `yaml:"recommended_documents" json:"recommended_documents"`
-	NextActions          []string         `yaml:"next_actions" json:"next_actions"`
+	Command              string            `yaml:"command" json:"command"`
+	ProjectMode          string            `yaml:"project_mode" json:"project_mode"`
+	DocumentationPhase   string            `yaml:"documentation_phase" json:"documentation_phase"`
+	ReleaseVersion       string            `yaml:"release_version" json:"release_version"`
+	KnownFacts           []Fact            `yaml:"known_facts" json:"known_facts"`
+	MissingInformation   []string          `yaml:"missing_information" json:"missing_information"`
+	RecommendedDocuments []DocumentAdvice  `yaml:"recommended_documents" json:"recommended_documents"`
+	CurrentPriority      *PriorityDocument `yaml:"current_priority,omitempty" json:"current_priority,omitempty"`
+	NextActions          []string          `yaml:"next_actions" json:"next_actions"`
 }
 
 type Fact struct {
@@ -25,6 +30,15 @@ type DocumentAdvice struct {
 	Path    string `yaml:"path" json:"path"`
 	Purpose string `yaml:"purpose" json:"purpose"`
 	Status  string `yaml:"status" json:"status"`
+}
+
+type PriorityDocument struct {
+	Path            string   `yaml:"path" json:"path"`
+	Purpose         string   `yaml:"purpose" json:"purpose"`
+	RequiredContext []string `yaml:"required_context" json:"required_context"`
+	MissingContext  []string `yaml:"missing_context" json:"missing_context"`
+	Ready           bool     `yaml:"ready" json:"ready"`
+	Reason          string   `yaml:"reason" json:"reason"`
 }
 
 func runPlan(args []string) error {
@@ -55,20 +69,27 @@ func runPlan(args []string) error {
 		return err
 	}
 
-	out := PlanOutput{
-		Command:            "plan",
-		ProjectMode:        ctx.Project.Mode,
-		DocumentationPhase: ctx.Documentation.Phase,
-		ReleaseVersion:     ctx.Documentation.ReleaseVersion,
-		KnownFacts:         buildKnownFacts(ctx),
-		MissingInformation: append([]string{}, ctx.Conversation.OpenQuestions...),
-		RecommendedDocuments: append(
-			recommendedDocumentsForMode(ctx.Project.Mode),
-			versionedDocuments(ctx.Documentation.ReleaseVersion)...),
-		NextActions: nextActionsForMode(ctx.Project.Mode),
-	}
+	out := buildPlanOutput(ctx)
 
 	return printOutput(*format, out)
+}
+
+func buildPlanOutput(ctx Context) PlanOutput {
+	recommended := append(
+		recommendedDocumentsForMode(ctx.Project.Mode),
+		versionedDocuments(ctx.Documentation.ReleaseVersion)...)
+
+	return PlanOutput{
+		Command:              "plan",
+		ProjectMode:          ctx.Project.Mode,
+		DocumentationPhase:   ctx.Documentation.Phase,
+		ReleaseVersion:       ctx.Documentation.ReleaseVersion,
+		KnownFacts:           buildKnownFacts(ctx),
+		MissingInformation:   append([]string{}, ctx.Conversation.OpenQuestions...),
+		RecommendedDocuments: recommended,
+		CurrentPriority:      selectPriorityDocument(ctx, recommended),
+		NextActions:          nextActionsForMode(ctx.Project.Mode),
+	}
 }
 
 func buildKnownFacts(ctx Context) []Fact {
@@ -133,4 +154,110 @@ func versionedDocuments(release string) []DocumentAdvice {
 		{Path: fmt.Sprintf("docs/%s/features/feature-template.md", release), Purpose: "feature note template for the release", Status: "optional"},
 		{Path: fmt.Sprintf("docs/%s/features/review-checklist-template.md", release), Purpose: "review checklist template for the release", Status: "optional"},
 	}
+}
+
+func selectPriorityDocument(ctx Context, docs []DocumentAdvice) *PriorityDocument {
+	for _, doc := range docs {
+		if documentMaterialized(ctx, doc.Path) {
+			continue
+		}
+		required := requiredContextForDocument(ctx.Project.Mode, doc.Path)
+		missing := missingRequiredContext(ctx, required)
+		reason := "next recommended document that has not been generated yet"
+		ready := len(missing) == 0
+		if !ready {
+			reason = "waiting for missing context before reliable drafting"
+		}
+		return &PriorityDocument{
+			Path:            doc.Path,
+			Purpose:         doc.Purpose,
+			RequiredContext: required,
+			MissingContext:  missing,
+			Ready:           ready,
+			Reason:          reason,
+		}
+	}
+	return nil
+}
+
+func requiredContextForDocument(mode, path string) []string {
+	switch path {
+	case "README.md":
+		return []string{"project_summary", "deployment_shape"}
+	case "AGENTS.md", "CLAUDE.md":
+		return []string{"ownership_model"}
+	case "docs/domain-overview.md":
+		return []string{"project_summary"}
+	case "docs/architecture.md":
+		if mode == "legacy" {
+			return []string{"current_layout_summary"}
+		}
+		return []string{"deployment_shape"}
+	case "docs/legacy-structure-inventory.md":
+		return []string{"undocumented_directories", "current_layout_summary"}
+	case "docs/legacy-reshape-guide.md":
+		return []string{"active_release_docs_strategy", "ownership_model"}
+	default:
+		if isVersionedReleaseReadme(path) {
+			return []string{"active_release_docs_strategy", "ownership_model"}
+		}
+		if isVersionedFeaturePath(path) {
+			return []string{"active_release_docs_strategy"}
+		}
+		return nil
+	}
+}
+
+func isVersionedReleaseReadme(path string) bool {
+	segments := strings.Split(filepath.ToSlash(path), "/")
+	return len(segments) == 3 && segments[0] == "docs" && segments[2] == "README.md"
+}
+
+func isVersionedFeaturePath(path string) bool {
+	segments := strings.Split(filepath.ToSlash(path), "/")
+	return len(segments) >= 4 && segments[0] == "docs" && segments[2] == "features"
+}
+
+func missingRequiredContext(ctx Context, required []string) []string {
+	if len(required) == 0 {
+		return nil
+	}
+	var missing []string
+	for _, id := range required {
+		if slices.Contains(ctx.Conversation.OpenQuestions, id) {
+			missing = append(missing, id)
+			continue
+		}
+		if answeredValue(ctx, id) == "" && !factPresent(ctx, id) {
+			missing = append(missing, id)
+		}
+	}
+	return missing
+}
+
+func factPresent(ctx Context, id string) bool {
+	switch id {
+	case "project_summary":
+		return ctx.Project.Summary != ""
+	case "current_layout_summary":
+		return ctx.Structure.CurrentLayoutSummary != ""
+	default:
+		return false
+	}
+}
+
+func documentMaterialized(ctx Context, path string) bool {
+	rel, abs := ctx.normalizeDocPath(path)
+	if rel != "" && slices.Contains(ctx.Documentation.GeneratedDocs, rel) {
+		return true
+	}
+	if abs != "" && slices.Contains(ctx.Documentation.GeneratedDocs, abs) {
+		return true
+	}
+	if abs != "" {
+		if _, err := os.Stat(abs); err == nil {
+			return true
+		}
+	}
+	return false
 }

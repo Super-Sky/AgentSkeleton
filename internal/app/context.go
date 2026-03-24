@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -122,14 +123,47 @@ func (c *Context) applyAnswer(questionID, value string) {
 
 func (c *Context) markGenerated(paths []string) {
 	for _, p := range paths {
-		if p == "" {
+		rel, abs := c.normalizeDocPath(p)
+		if rel == "" && abs == "" {
 			continue
 		}
-		if !slices.Contains(c.Documentation.GeneratedDocs, p) {
-			c.Documentation.GeneratedDocs = append(c.Documentation.GeneratedDocs, p)
+		storePath := rel
+		if storePath == "" {
+			storePath = abs
 		}
-		c.Documentation.MissingDocs = removeString(c.Documentation.MissingDocs, p)
+		if !slices.Contains(c.Documentation.GeneratedDocs, storePath) {
+			c.Documentation.GeneratedDocs = append(c.Documentation.GeneratedDocs, storePath)
+		}
+		if rel != "" {
+			c.Documentation.MissingDocs = removeString(c.Documentation.MissingDocs, rel)
+		}
+		if abs != "" {
+			c.Documentation.MissingDocs = removeString(c.Documentation.MissingDocs, abs)
+		}
 	}
+}
+
+func (c Context) normalizeDocPath(path string) (rel string, abs string) {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return "", ""
+	}
+
+	if filepath.IsAbs(path) {
+		abs = filepath.Clean(path)
+		if c.Paths.OutputDir != "" {
+			if relPath, err := filepath.Rel(c.Paths.OutputDir, abs); err == nil && relPath != "." && !strings.HasPrefix(relPath, "..") {
+				return filepath.ToSlash(relPath), abs
+			}
+		}
+		return "", abs
+	}
+
+	rel = filepath.ToSlash(filepath.Clean(path))
+	if c.Paths.OutputDir != "" {
+		abs = filepath.Join(c.Paths.OutputDir, filepath.FromSlash(rel))
+	}
+	return rel, abs
 }
 
 func removeString(items []string, target string) []string {

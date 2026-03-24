@@ -110,6 +110,7 @@ The CLI is expected to become the main entry point for users. Initial command ar
 - `response`: validate/evaluate model output and optionally apply accepted answers
 - `prompt`: generate initial or repair prompts from context
 - `workflow`: run one bundled step (`plan + prompt + next`) with optional response apply, planned file materialization via `--write-plan-files`, retry repair packaging via `--auto-repair`, and process snapshots via `--persist-trace`
+- `plan` and `workflow` now expose `current_priority` so the host model knows which document should be drafted next
 
 See `docs/agent-prompts.md` for the host-model prompt expectations so structured retries work.
 See `docs/cli-runbook.md` for the end-to-end command sequence.

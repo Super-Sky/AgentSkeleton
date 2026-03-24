@@ -136,6 +136,16 @@ recommended_documents:
   - path: docs/domain-overview.md
     purpose: shared domain language for humans and models
     status: required
+current_priority:
+  path: README.md
+  purpose: repository entrypoint and summary
+  required_context:
+    - project_summary
+    - deployment_shape
+  missing_context:
+    - deployment_shape
+  ready: false
+  reason: waiting for missing context before reliable drafting
 next_actions:
   - ask about deployment shape
   - ask about document ownership
@@ -261,6 +271,7 @@ questions:
 - 若 `--apply` 且决策为 `accept`，写回上下文
 - 如果传入 `--write-plan-files`，则把当前已支持的计划文档渲染到 `<output-dir>/...`
 - 写入计划文档时默认跳过已存在文件，除非传入 `--overwrite`
+- 当计划文档被创建或检测为已存在时，要把其 generated 状态回写到 `.agentskeleton/context.yaml`
 - 如果传入 `--auto-repair` 且响应评估结果为 `retry`，则输出：
   - `auto_repair.next_attempt`
   - `auto_repair.validation_errors`

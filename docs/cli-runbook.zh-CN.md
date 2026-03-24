@@ -75,6 +75,7 @@ agentskeleton workflow \
 ```
 
 默认只写缺失文件；只有你明确想覆盖已有生成文档时，才传 `--overwrite`。
+当文件被创建，或检测到已经存在时，workflow 也会把它们的 generated 状态回写到 `<output-dir>/.agentskeleton/context.yaml`。
 
 如果你希望为这一轮保留一份完整结构化快照，便于审计或后续回放：
 
