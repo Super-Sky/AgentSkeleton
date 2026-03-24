@@ -114,6 +114,7 @@ CLI 预期会成为用户的主要入口。首批命令方向包括：
 - `focus-doc` 会把这份优先文档展开成起草上下文包，而 `review_candidates` 用于提示哪些已生成文档需要回溯收敛
 - `focus-doc` 还会返回 `review_after_draft`，把“往前起草”和“往后收敛”放进同一个动作包里
 - `response --apply` 现在还会返回 `post_apply_plan`，宿主在成功写回后可以直接继续推进
+- 回溯收敛只绑定最近一次变更批次，而不是被缓存成永久状态
 
 请参考 `docs/agent-prompts.zh-CN.md`，了解宿主模型如何消费这些输出并进行重试。
 请参考 `docs/cli-runbook.zh-CN.md` 查看完整命令链路。

@@ -21,6 +21,7 @@ type Context struct {
 	Documentation Documentation `yaml:"documentation" json:"documentation"`
 	Structure     Structure     `yaml:"structure" json:"structure"`
 	Conversation  Conversation  `yaml:"conversation" json:"conversation"`
+	Changes       Changes       `yaml:"changes" json:"changes"`
 }
 
 type Paths struct {
@@ -60,6 +61,12 @@ type Conversation struct {
 type QuestionAnswer struct {
 	ID    string `yaml:"id" json:"id"`
 	Value string `yaml:"value" json:"value"`
+}
+
+type Changes struct {
+	BatchID           int      `yaml:"batch_id" json:"batch_id"`
+	ResolvedQuestions []string `yaml:"resolved_questions" json:"resolved_questions"`
+	GeneratedDocs     []string `yaml:"generated_docs" json:"generated_docs"`
 }
 
 func loadContext(path string) (Context, error) {
@@ -143,6 +150,12 @@ func (c *Context) markGenerated(paths []string) {
 	}
 }
 
+func (c *Context) recordChangeBatch(resolvedQuestions, generatedDocs []string) {
+	c.Changes.BatchID++
+	c.Changes.ResolvedQuestions = dedupeStrings(resolvedQuestions)
+	c.Changes.GeneratedDocs = dedupeStrings(generatedDocs)
+}
+
 func (c Context) normalizeDocPath(path string) (rel string, abs string) {
 	path = strings.TrimSpace(path)
 	if path == "" {
@@ -175,6 +188,26 @@ func removeString(items []string, target string) []string {
 		if it != target {
 			out = append(out, it)
 		}
+	}
+	return out
+}
+
+func dedupeStrings(items []string) []string {
+	if len(items) == 0 {
+		return nil
+	}
+	out := make([]string, 0, len(items))
+	seen := map[string]struct{}{}
+	for _, item := range items {
+		item = strings.TrimSpace(item)
+		if item == "" {
+			continue
+		}
+		if _, ok := seen[item]; ok {
+			continue
+		}
+		seen[item] = struct{}{}
+		out = append(out, item)
 	}
 	return out
 }

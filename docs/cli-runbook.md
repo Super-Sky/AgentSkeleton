@@ -50,6 +50,7 @@ agentskeleton response \
 
 If the response `data` contains multiple fields, all of them are applied by default. Use `--question <id>` only when you want to apply a single field.
 When apply succeeds, the response output also includes `post_apply_plan`, so the host model can continue from refreshed priority and review targets without running `plan` again.
+Those review targets are scoped to the latest change batch only, so they represent the current convergence window rather than the entire project history.
 
 5. Continue with next questions:
 
@@ -156,6 +157,8 @@ Use this to revisit generated documents after:
 - newly resolved core answers such as `project_summary`, `deployment_shape`, or `ownership_model`
 - legacy reshape discoveries such as `undocumented_directories`
 - release-level documentation decisions
+
+These candidates are recalculated from the latest change batch. They should not be treated as a persistent reviewed/unreviewed backlog.
 
 You can bundle this into `workflow` as well:
 

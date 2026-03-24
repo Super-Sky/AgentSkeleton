@@ -74,6 +74,10 @@ structure:
 conversation:
   answered_questions: []
   open_questions: []
+changes:
+  batch_id: 0
+  resolved_questions: []
+  generated_docs: []
 ```
 
 ## Command Set
@@ -112,7 +116,7 @@ Summarize the current project state and produce a documentation plan.
 - unresolved information gaps
 - recommended document list
 - current priority document for drafting
-- review candidates that should be revisited after newly resolved context
+- review candidates triggered by the most recent change batch only
 - why each document is needed
 - recommended next actions
 
@@ -183,6 +187,17 @@ Produce a document drafting context package for the current priority document, o
 - writing rules
 - generated documents that should likely be reviewed after this draft narrows shared context
 - next actions after the draft is produced
+
+## Change Batch Model
+
+AgentSkeleton treats review work as a temporary obligation tied to the latest resolved context, not as a permanent repository flag.
+
+- `changes.batch_id` identifies the latest change batch
+- `changes.resolved_questions` records which answers were newly resolved in that batch
+- `changes.generated_docs` records which documents were generated or materialized in that batch
+- `review_candidates` should be computed from the latest change batch only
+
+This prevents old review obligations from leaking into later iterations that no longer depend on the same change window.
 
 ## `next`
 

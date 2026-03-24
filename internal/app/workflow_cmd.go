@@ -163,6 +163,7 @@ func executeWorkflow(cfg workflowConfig) (WorkflowOutput, error) {
 		materialized = append(materialized, res.Skipped...)
 		if len(materialized) > 0 {
 			ctx.markGenerated(materialized)
+			ctx.recordChangeBatch(nil, materialized)
 			if err := writeContext(cfg.ContextPath, ctx); err != nil {
 				return WorkflowOutput{}, err
 			}

@@ -271,19 +271,14 @@ func documentMaterialized(ctx Context, path string) bool {
 }
 
 func buildReviewCandidates(ctx Context) []ReviewCandidate {
-	answered := map[string]struct{}{}
-	for _, qa := range ctx.Conversation.AnsweredQuestions {
-		if qa.Value != "" {
-			answered[qa.ID] = struct{}{}
-		}
-	}
-	if len(answered) == 0 {
+	resolved := dedupeStrings(ctx.Changes.ResolvedQuestions)
+	if len(resolved) == 0 {
 		return nil
 	}
 
 	index := map[string]*ReviewCandidate{}
 	for _, question := range questionsForMode(ctx.Project.Mode) {
-		if _, ok := answered[question.ID]; !ok {
+		if !slices.Contains(resolved, question.ID) {
 			continue
 		}
 		for _, docPath := range question.Affects {

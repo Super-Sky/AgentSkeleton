@@ -857,6 +857,10 @@ func TestBuildPlanOutputIncludesReviewCandidates(t *testing.T) {
 				{ID: "project_summary", Value: "summary"},
 			},
 		},
+		Changes: Changes{
+			BatchID:           1,
+			ResolvedQuestions: []string{"project_summary"},
+		},
 	}
 
 	out := buildPlanOutput(ctx)

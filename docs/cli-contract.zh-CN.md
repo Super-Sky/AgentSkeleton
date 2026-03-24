@@ -74,6 +74,10 @@ structure:
 conversation:
   answered_questions: []
   open_questions: []
+changes:
+  batch_id: 0
+  resolved_questions: []
+  generated_docs: []
 ```
 
 ## 命令集合
@@ -112,7 +116,7 @@ conversation:
 - 未解决的信息缺口
 - 建议文档列表
 - 当前优先起草的文档
-- 因新上下文已解决而需要回看收敛的文档
+- 仅由最近一次变更批次触发的回看文档
 - 每个文档存在的目的
 - 推荐下一步动作
 
@@ -183,6 +187,17 @@ next_actions:
 - 写作规则
 - 在这份文档起草后，哪些已生成文档大概率需要回看收敛
 - 起草完成后的下一步动作
+
+## 变更批次模型
+
+AgentSkeleton 把回看义务视为“最近一次上下文变化窗口”的临时结果，而不是永久状态。
+
+- `changes.batch_id` 标识最近一次变更批次
+- `changes.resolved_questions` 记录这一批次里新解决了哪些问题
+- `changes.generated_docs` 记录这一批次里生成或落地了哪些文档
+- `review_candidates` 只应基于最近一次变更批次来计算
+
+这样可以避免旧的回看义务泄漏到后续已经无关的迭代中。
 
 ## `next`
 

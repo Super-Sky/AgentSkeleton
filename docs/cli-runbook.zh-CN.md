@@ -50,6 +50,7 @@ agentskeleton response \
 
 如果返回 `data` 中包含多个字段，默认会批量写回。只有在你希望单字段写回时才需要加 `--question <id>`。
 当写回成功时，`response` 输出里还会带上 `post_apply_plan`，宿主模型无需再次执行 `plan`，就能直接拿到刷新后的优先文档和回溯候选。
+这些回溯候选只对最近一次变更批次有效，表示“当前收敛窗口”，而不是整个项目历史上的永久待办。
 
 5. 继续下一轮问题：
 
@@ -156,6 +157,8 @@ agentskeleton prompt \
 - `project_summary`、`deployment_shape`、`ownership_model` 这类核心答案被补齐
 - 老项目盘点发现新的目录或模块信息
 - 某次版本文档策略被明确
+
+这些候选会基于最近一次变更批次重新计算，不应该被理解成持久化的 reviewed/unreviewed 列表。
 
 你也可以直接在 `workflow` 中打包这个过程：
 

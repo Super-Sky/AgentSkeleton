@@ -114,14 +114,18 @@ func applyAcceptedResponse(contextPath, question, docs string, allowExampleWrite
 	if err != nil {
 		return false, err
 	}
+	resolvedQuestions := make([]string, 0, len(questionIDs))
 	for _, questionID := range questionIDs {
 		value, ok := envelope.Data[questionID]
 		if !ok {
 			return false, fmt.Errorf("response data does not include question key %q", questionID)
 		}
 		ctx.applyAnswer(questionID, fmt.Sprint(value))
+		resolvedQuestions = append(resolvedQuestions, questionID)
 	}
-	ctx.markGenerated(parseDocs(docs))
+	generatedDocs := parseDocs(docs)
+	ctx.markGenerated(generatedDocs)
+	ctx.recordChangeBatch(resolvedQuestions, generatedDocs)
 
 	if err := writeContext(contextPath, ctx); err != nil {
 		return false, err
