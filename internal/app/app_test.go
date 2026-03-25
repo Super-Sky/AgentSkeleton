@@ -819,6 +819,10 @@ func TestBuildPlanOutputSelectsCurrentPriority(t *testing.T) {
 		Conversation: Conversation{
 			OpenQuestions: []string{"ownership_model"},
 		},
+		Changes: Changes{
+			BatchID:           3,
+			ResolvedQuestions: []string{"project_summary"},
+		},
 	}
 
 	out := buildPlanOutput(ctx)
@@ -895,6 +899,10 @@ func TestBuildFocusDocOutputUsesCurrentPriority(t *testing.T) {
 		Conversation: Conversation{
 			OpenQuestions: []string{"ownership_model"},
 		},
+		Changes: Changes{
+			BatchID:           3,
+			ResolvedQuestions: []string{"project_summary"},
+		},
 	}
 
 	out, err := buildFocusDocOutput(ctx, buildPlanOutput(ctx), "")
@@ -903,6 +911,12 @@ func TestBuildFocusDocOutputUsesCurrentPriority(t *testing.T) {
 	}
 	if out.Path != "AGENTS.md" {
 		t.Fatalf("focus path = %q, want AGENTS.md", out.Path)
+	}
+	if out.ChangeBatchID != 3 {
+		t.Fatalf("change_batch_id = %d, want 3", out.ChangeBatchID)
+	}
+	if !slices.Contains(out.ChangeBatchInputs, "project_summary") {
+		t.Fatalf("change_batch_inputs = %#v", out.ChangeBatchInputs)
 	}
 	if out.Ready {
 		t.Fatalf("focus doc should not be ready when ownership_model is missing")
@@ -985,6 +999,10 @@ func TestRunFocusDocJSONOutput(t *testing.T) {
 				{ID: "project_summary", Value: "AI-friendly mall docs"},
 			},
 		},
+		Changes: Changes{
+			BatchID:           5,
+			ResolvedQuestions: []string{"project_summary"},
+		},
 	}
 	if err := writeContext(contextPath, ctx); err != nil {
 		t.Fatalf("writeContext() error = %v", err)
@@ -1006,6 +1024,9 @@ func TestRunFocusDocJSONOutput(t *testing.T) {
 	}
 	if !strings.Contains(output, "\"path\": \"docs/domain-overview.md\"") {
 		t.Fatalf("focus-doc output missing focused path: %s", output)
+	}
+	if !strings.Contains(output, "\"change_batch_id\": 5") {
+		t.Fatalf("focus-doc output missing change_batch_id: %s", output)
 	}
 	if !strings.Contains(output, "\"review_after_draft\"") {
 		t.Fatalf("focus-doc output missing review_after_draft: %s", output)

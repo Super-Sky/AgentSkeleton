@@ -179,6 +179,8 @@ next_actions:
 
 `focus-doc` 应返回：
 
+- 当前 `change_batch_id`
+- 最近一次变更批次里已解决的输入
 - 当前聚焦的文档路径与目的
 - 该文档是否已经具备起草条件
 - 必要上下文与缺失上下文
@@ -196,6 +198,7 @@ AgentSkeleton 把回看义务视为“最近一次上下文变化窗口”的临
 - `changes.resolved_questions` 记录这一批次里新解决了哪些问题
 - `changes.generated_docs` 记录这一批次里生成或落地了哪些文档
 - `review_candidates` 只应基于最近一次变更批次来计算
+- `focus-doc` 应暴露当前 `change_batch_id`，方便宿主识别已经过期的起草包
 
 这样可以避免旧的回看义务泄漏到后续已经无关的迭代中。
 

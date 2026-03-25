@@ -7,6 +7,8 @@ import (
 
 type FocusDocOutput struct {
 	Command           string            `yaml:"command" json:"command"`
+	ChangeBatchID     int               `yaml:"change_batch_id" json:"change_batch_id"`
+	ChangeBatchInputs []string          `yaml:"change_batch_inputs,omitempty" json:"change_batch_inputs,omitempty"`
 	Path              string            `yaml:"path" json:"path"`
 	Purpose           string            `yaml:"purpose" json:"purpose"`
 	Ready             bool              `yaml:"ready" json:"ready"`
@@ -69,6 +71,8 @@ func buildFocusDocOutput(ctx Context, plan PlanOutput, explicitPath string) (Foc
 
 	return FocusDocOutput{
 		Command:           "focus-doc",
+		ChangeBatchID:     ctx.Changes.BatchID,
+		ChangeBatchInputs: append([]string{}, ctx.Changes.ResolvedQuestions...),
 		Path:              doc.Path,
 		Purpose:           doc.Purpose,
 		Ready:             len(missing) == 0,

@@ -115,6 +115,7 @@ The CLI is expected to become the main entry point for users. Initial command ar
 - `focus-doc` also exposes `review_after_draft`, so forward drafting and backward convergence are planned together
 - `response --apply` now returns `post_apply_plan`, so hosts can continue immediately after a successful write-back
 - review work is scoped to the latest change batch instead of being cached as a permanent state
+- `focus-doc` carries the current `change_batch_id` so hosts can detect stale drafting packages
 
 See `docs/agent-prompts.md` for the host-model prompt expectations so structured retries work.
 See `docs/cli-runbook.md` for the end-to-end command sequence.

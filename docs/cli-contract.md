@@ -179,6 +179,8 @@ Produce a document drafting context package for the current priority document, o
 
 `focus-doc` should return:
 
+- the current `change_batch_id`
+- the resolved inputs from the latest change batch
 - the focused document path and purpose
 - whether the document is ready for drafting
 - required and missing context
@@ -196,6 +198,7 @@ AgentSkeleton treats review work as a temporary obligation tied to the latest re
 - `changes.resolved_questions` records which answers were newly resolved in that batch
 - `changes.generated_docs` records which documents were generated or materialized in that batch
 - `review_candidates` should be computed from the latest change batch only
+- `focus-doc` should expose the active `change_batch_id` so a host can detect stale drafting packages
 
 This prevents old review obligations from leaking into later iterations that no longer depend on the same change window.
 

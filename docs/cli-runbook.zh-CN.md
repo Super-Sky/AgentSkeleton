@@ -75,6 +75,7 @@ agentskeleton focus-doc \
 ```
 
 `focus-doc` 还会返回 `review_after_draft`，用于提示宿主模型：这份文档起草完成后，哪些已生成文档可能需要继续回看和收敛。
+同时它还会返回 `change_batch_id`，让宿主知道这份起草包属于哪一轮变更窗口。
 
 ## 单命令流程
 

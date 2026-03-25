@@ -75,6 +75,7 @@ agentskeleton focus-doc \
 ```
 
 `focus-doc` also returns `review_after_draft`, which tells the host model which already-generated documents may need convergence after this draft is completed.
+It also includes `change_batch_id`, so the host can tell which change window the drafting package belongs to.
 
 ## One-Command Flow
 
