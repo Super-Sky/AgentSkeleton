@@ -94,6 +94,14 @@ For the current release track, install AgentSkeleton by building the CLI locally
 go build -o agentskeleton ./cmd/agentskeleton
 ```
 
+Or use the included local targets:
+
+```bash
+make build
+make test
+make smoke
+```
+
 To inspect the built CLI version:
 
 ```bash

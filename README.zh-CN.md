@@ -94,6 +94,14 @@ AgentSkeleton 的设计目标，是与大模型协作，而不是替代大模型
 go build -o agentskeleton ./cmd/agentskeleton
 ```
 
+也可以直接使用仓库内置的本地目标：
+
+```bash
+make build
+make test
+make smoke
+```
+
 构建后可通过下面的方式查看 CLI 版本信息：
 
 ```bash

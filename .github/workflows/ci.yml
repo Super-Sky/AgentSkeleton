@@ -26,3 +26,6 @@ jobs:
 
       - name: Build CLI
         run: go build ./cmd/agentskeleton
+
+      - name: Run smoke test
+        run: make smoke
