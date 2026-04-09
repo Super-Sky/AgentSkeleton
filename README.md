@@ -86,6 +86,32 @@ The default expectation is:
 
 This rule should shape both the product design and the repository workflow. See `docs/principles.md` for the full baseline.
 
+## Installation
+
+For the current release track, install AgentSkeleton by building the CLI locally:
+
+```bash
+go build -o agentskeleton ./cmd/agentskeleton
+```
+
+The repository also includes GitHub Actions workflows for CI and tagged release builds under `.github/workflows/`.
+
+## v0.1.0 Direction
+
+The target for `v0.1.0` is the first public zero-command release for Codex and Claude Code.
+
+That means:
+
+- the CLI remains the protocol core
+- host integrations carry the zero-command experience
+- users should stay in conversation instead of manually operating AgentSkeleton commands
+
+See these docs for the current release-track definition:
+
+- `docs/v0.1.0-gap-analysis.md`
+- `docs/v0.1.0-implementation-plan.md`
+- `docs/known-limitations.md`
+
 ## Repository Layout
 
 ```text
@@ -120,20 +146,20 @@ The CLI is expected to become the main entry point for users. Initial command ar
 See `docs/agent-prompts.md` for the host-model prompt expectations so structured retries work.
 See `docs/cli-runbook.md` for the end-to-end command sequence.
 See `docs/host-integration.md` for how Codex and Claude Code should integrate with AgentSkeleton in practice.
+See `docs/codex-integration.md` and `docs/claude-integration.md` for the current official host integration artifacts.
 Path defaults: use `--project` to identify the target project; AgentSkeleton process artifacts live under `<output-dir>/.agentskeleton`, while final docs and skills belong under `<output-dir>/...`.
 
 The first minimal CLI skeleton now exists in `cmd/agentskeleton`, with the output contract defined in `docs/cli-contract.md`.
 
 ## Current Status
 
-This repository is in the initial definition stage. The first push should establish:
+This repository has moved beyond initial definition and now includes:
 
-- core documentation
-- baseline structure
-- naming conventions
-- agent support strategy
-- CLI direction for documentation guidance
-- initial CLI contract and runnable command skeleton
+- the runnable CLI core
+- host integration specs for zero-command behavior
+- initial Codex and Claude Code skill artifacts
+- shared host validation scenarios and report templates
+- initial CI and tagged release workflow scaffolding
 
 ## Contributing Direction
 

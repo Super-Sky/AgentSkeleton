@@ -86,6 +86,32 @@ AgentSkeleton 的设计目标，是与大模型协作，而不是替代大模型
 
 这条原则会直接影响产品设计和仓库协作方式。完整基线见 `docs/principles.zh-CN.md`。
 
+## 安装方式
+
+在当前发布路径下，可先通过本地构建方式安装 AgentSkeleton CLI：
+
+```bash
+go build -o agentskeleton ./cmd/agentskeleton
+```
+
+仓库同时已经包含用于 CI 和 tag 发布构建的 GitHub Actions workflow，位于 `.github/workflows/`。
+
+## v0.1.0 方向
+
+`v0.1.0` 的目标，是面向 Codex 与 Claude Code 的第一个零命令感知公开版本。
+
+这意味着：
+
+- CLI 继续作为协议核心
+- 宿主接入层负责零命令体验
+- 用户应停留在对话中，而不是手工操作 AgentSkeleton 命令
+
+当前发布路径定义请参考：
+
+- `docs/v0.1.0-gap-analysis.zh-CN.md`
+- `docs/v0.1.0-implementation-plan.zh-CN.md`
+- `docs/known-limitations.zh-CN.md`
+
 ## 仓库结构
 
 ```text
@@ -120,20 +146,20 @@ CLI 预期会成为用户的主要入口。首批命令方向包括：
 请参考 `docs/agent-prompts.zh-CN.md`，了解宿主模型如何消费这些输出并进行重试。
 请参考 `docs/cli-runbook.zh-CN.md` 查看完整命令链路。
 请参考 `docs/host-integration.zh-CN.md` 查看 Codex / Claude Code 应如何实际接入并使用 AgentSkeleton。
+请参考 `docs/codex-integration.zh-CN.md` 与 `docs/claude-integration.zh-CN.md` 查看当前官方宿主接入产物。
 路径默认规则：用 `--project` 标识目标项目；AgentSkeleton 的过程产物放在 `<output-dir>/.agentskeleton`，最终文档和技能放在 `<output-dir>/...`。
 
 当前仓库已经包含第一版最小 CLI 骨架，位于 `cmd/agentskeleton`，输出协议定义见 `docs/cli-contract.zh-CN.md`。
 
 ## 当前状态
 
-仓库目前处于初始定义阶段。第一次推送应当至少建立：
+仓库已经超出纯定义阶段，目前已经包含：
 
-- 核心文档
-- 基础目录结构
-- 命名约定
-- agent 支持策略
-- 面向文档引导的 CLI 方向
-- 初版 CLI 协议与可运行命令骨架
+- 可运行的 CLI core
+- 面向零命令体验的宿主接入规范
+- 初版 Codex 与 Claude Code skill 产物
+- 共享宿主验证场景与报告模板
+- 初版 CI 与 tag release workflow 骨架
 
 ## 贡献方向
 
