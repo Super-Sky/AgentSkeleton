@@ -15,4 +15,10 @@
 - `claude-scenario-1.md`
 - `claude-scenario-2.md`
 
+也可以通过下面的方式快速生成新的报告骨架：
+
+```bash
+make new-validation-report HOST=codex FILE=codex-scenario-3 TITLE="Codex Validation Report: Scenario 3"
+```
+
 这些报告预期会成为切出 `v0.1.0` 前所需的具体验证证据。

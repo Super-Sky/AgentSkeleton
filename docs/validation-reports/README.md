@@ -15,4 +15,10 @@ Suggested naming:
 - `claude-scenario-1.md`
 - `claude-scenario-2.md`
 
+You can scaffold a new report with:
+
+```bash
+make new-validation-report HOST=codex FILE=codex-scenario-3 TITLE="Codex Validation Report: Scenario 3"
+```
+
 These reports are expected to provide the concrete validation evidence required before cutting `v0.1.0`.
