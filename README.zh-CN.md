@@ -94,6 +94,12 @@ AgentSkeleton 的设计目标，是与大模型协作，而不是替代大模型
 go build -o agentskeleton ./cmd/agentskeleton
 ```
 
+构建后可通过下面的方式查看 CLI 版本信息：
+
+```bash
+./agentskeleton version --format json
+```
+
 仓库同时已经包含用于 CI 和 tag 发布构建的 GitHub Actions workflow，位于 `.github/workflows/`。
 
 ## v0.1.0 方向

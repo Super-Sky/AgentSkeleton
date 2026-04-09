@@ -94,6 +94,12 @@ For the current release track, install AgentSkeleton by building the CLI locally
 go build -o agentskeleton ./cmd/agentskeleton
 ```
 
+To inspect the built CLI version:
+
+```bash
+./agentskeleton version --format json
+```
+
 The repository also includes GitHub Actions workflows for CI and tagged release builds under `.github/workflows/`.
 
 ## v0.1.0 Direction

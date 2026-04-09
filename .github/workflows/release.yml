@@ -33,7 +33,10 @@ jobs:
         run: |
           mkdir -p dist
           bin_name="agentskeleton-${GOOS}-${GOARCH}"
-          go build -o "dist/${bin_name}" ./cmd/agentskeleton
+          go build \
+            -ldflags "-X github.com/Super-Sky/AgentSkeleton/internal/app.Version=${GITHUB_REF_NAME} -X github.com/Super-Sky/AgentSkeleton/internal/app.Commit=${GITHUB_SHA} -X github.com/Super-Sky/AgentSkeleton/internal/app.Date=$(date -u +%Y-%m-%d)" \
+            -o "dist/${bin_name}" \
+            ./cmd/agentskeleton
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

@@ -1293,6 +1293,54 @@ func TestRunResponseApplyRejectsExamplePathByDefault(t *testing.T) {
 	}
 }
 
+func TestRunVersionYAML(t *testing.T) {
+	originalVersion, originalCommit, originalDate := Version, Commit, Date
+	Version, Commit, Date = "v0.1.0", "abc1234", "2026-04-09"
+	defer func() {
+		Version, Commit, Date = originalVersion, originalCommit, originalDate
+	}()
+
+	output := captureStdout(t, func() {
+		if err := runVersion(nil); err != nil {
+			t.Fatalf("runVersion() error = %v", err)
+		}
+	})
+
+	if !strings.Contains(output, "command: version") {
+		t.Fatalf("version output missing command: %s", output)
+	}
+	if !strings.Contains(output, "version: v0.1.0") {
+		t.Fatalf("version output missing version: %s", output)
+	}
+	if !strings.Contains(output, "commit: abc1234") {
+		t.Fatalf("version output missing commit: %s", output)
+	}
+}
+
+func TestRunVersionJSON(t *testing.T) {
+	originalVersion, originalCommit, originalDate := Version, Commit, Date
+	Version, Commit, Date = "v0.1.0", "abc1234", "2026-04-09"
+	defer func() {
+		Version, Commit, Date = originalVersion, originalCommit, originalDate
+	}()
+
+	output := captureStdout(t, func() {
+		if err := runVersion([]string{"--format", "json"}); err != nil {
+			t.Fatalf("runVersion() error = %v", err)
+		}
+	})
+
+	if !strings.Contains(output, "\"command\": \"version\"") {
+		t.Fatalf("version json output missing command: %s", output)
+	}
+	if !strings.Contains(output, "\"version\": \"v0.1.0\"") {
+		t.Fatalf("version json output missing version: %s", output)
+	}
+	if !strings.Contains(output, "\"commit\": \"abc1234\"") {
+		t.Fatalf("version json output missing commit: %s", output)
+	}
+}
+
 func captureStdout(t *testing.T, fn func()) string {
 	t.Helper()
 
