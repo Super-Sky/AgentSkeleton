@@ -119,6 +119,7 @@ CLI 预期会成为用户的主要入口。首批命令方向包括：
 
 请参考 `docs/agent-prompts.zh-CN.md`，了解宿主模型如何消费这些输出并进行重试。
 请参考 `docs/cli-runbook.zh-CN.md` 查看完整命令链路。
+请参考 `docs/host-integration.zh-CN.md` 查看 Codex / Claude Code 应如何实际接入并使用 AgentSkeleton。
 路径默认规则：用 `--project` 标识目标项目；AgentSkeleton 的过程产物放在 `<output-dir>/.agentskeleton`，最终文档和技能放在 `<output-dir>/...`。
 
 当前仓库已经包含第一版最小 CLI 骨架，位于 `cmd/agentskeleton`，输出协议定义见 `docs/cli-contract.zh-CN.md`。

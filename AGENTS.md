@@ -31,6 +31,7 @@ This project exists to help users:
 - Put deeper product decisions in `docs/`.
 - Keep agent-specific guidance minimal and explicit.
 - Avoid hidden conventions that are not written in the repository.
+- Host integration rules belong in `docs/host-integration.md`.
 
 ## Implementation Direction
 

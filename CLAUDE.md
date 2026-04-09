@@ -28,3 +28,5 @@ AgentSkeleton is a scaffold project for:
 ## Expected Outcome
 
 Claude Code should be able to work effectively in this repository without requiring a second, separate project system.
+
+See `docs/host-integration.md` for the shared host-side integration flow.
