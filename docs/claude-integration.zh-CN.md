@@ -38,6 +38,7 @@ Claude Code skill 应负责：
 
 - 判断是否应激活 AgentSkeleton
 - 选择 `init-docs` 还是 `reshape-docs`
+- 当任务是基于当前仓库事实刷新已有文档时，选择 `update`
 - 使用 `plan` 作为工作流快照
 - 使用 `focus-doc` 作为起草包来源
 - 使用 `response --apply` 做写回

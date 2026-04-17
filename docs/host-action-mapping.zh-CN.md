@@ -111,6 +111,18 @@ AgentSkeleton 负责解释工作流状态。
 
 - `focus-doc` 是当前 priority 或指定文档的权威起草包
 
+### 情况 3A：用户要求基于当前仓库事实刷新已有文档
+
+宿主动作：
+
+- 执行 `update`
+- 然后从返回的 `post_update_plan` 继续推进
+
+原因：
+
+- 大面积文档刷新应先吸收那些无需再次确认、可以从仓库中安全推断的事实
+- 这样可以避免对同一轮结构信息重复追问
+
 ### 情况 4：宿主从对话中拿到了结构化答案
 
 宿主动作：
@@ -178,6 +190,11 @@ AgentSkeleton 负责解释工作流状态。
 - 检查 readiness 和 missing context
 - 只有在可起草，或用户已接受“带显式占位起草”时才继续
 
+当用户要求的是“大面积文档刷新”而不是单篇文档时，宿主应：
+
+- 在已有 context 的前提下优先执行 `update`
+- 使用刷新后的 plan 再决定下一份 draft 目标
+
 ## Review Candidate 规则
 
 `review_candidates` 应被视为临时的收敛工作。
@@ -234,13 +251,14 @@ AgentSkeleton 负责解释工作流状态。
 
 1. 判断 AgentSkeleton 是否已启用或应被启用
 2. 如有需要，执行 `init-docs` 或 `reshape-docs`
-3. 执行 `plan`
-4. 如果澄清阻塞，就提下一个高价值问题
-5. 否则执行 `focus-doc`
-6. 起草或更新目标文档
-7. 规范化结构化答案并执行 `response --apply`
-8. 从 `post_apply_plan` 继续推进
-9. 只有当最新 change batch 需要收敛时，才回看 review candidates
+3. 如果当前任务是大面积文档刷新且 context 已存在，则先执行 `update`
+4. 否则执行 `plan`
+5. 如果澄清阻塞，就提下一个高价值问题
+6. 否则执行 `focus-doc`
+7. 起草或更新目标文档
+8. 规范化结构化答案并执行 `response --apply`
+9. 从 `post_apply_plan` 继续推进
+10. 只有当最新 change batch 需要收敛时，才回看 review candidates
 
 ## 升级规则
 

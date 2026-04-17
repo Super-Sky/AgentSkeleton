@@ -1,6 +1,6 @@
 ---
 name: agentskeleton-codex
-description: Use this skill when working in a repository that uses AgentSkeleton and the goal is to provide a zero-command Codex experience. It tells Codex when to activate AgentSkeleton, when to use init-docs or reshape-docs, how to route between plan, focus-doc, and response --apply, and how to continue safely without exposing CLI workflow to the user.
+description: Use this skill when working in a repository that uses AgentSkeleton and the goal is to provide a zero-command Codex experience. It tells Codex when to activate AgentSkeleton, when to use init-docs, reshape-docs, or update, how to route between plan, focus-doc, and response --apply, and how to continue safely without exposing CLI workflow to the user.
 ---
 
 # AgentSkeleton for Codex
@@ -51,14 +51,15 @@ Use this default loop:
 
 1. detect whether AgentSkeleton is already active
 2. if no context exists, choose `init-docs` or `reshape-docs`
-3. run `plan`
-4. if missing context blocks drafting, ask the highest-value clarification question
-5. otherwise run `focus-doc`
-6. draft or update the target document
-7. normalize accepted structured answers
-8. run `response --apply`
-9. continue from `post_apply_plan`
-10. revisit `review_candidates` only when the latest change batch requires convergence
+3. if the task is a broad documentation refresh and context already exists, run `update`
+4. otherwise run `plan`
+5. if missing context blocks drafting, ask the highest-value clarification question
+6. otherwise run `focus-doc`
+7. draft or update the target document
+8. normalize accepted structured answers
+9. run `response --apply`
+10. continue from `post_apply_plan`
+11. revisit `review_candidates` only when the latest change batch requires convergence
 
 ## Activation Rules
 
@@ -79,6 +80,7 @@ You may also activate it when the user asks to:
 - Use `init-docs` for clearly new or greenfield projects.
 - Use `reshape-docs` for clearly existing or legacy repositories.
 - Use `plan` for workflow state and prioritization.
+- Use `update` before planning when the user is refreshing broad existing documentation from current repository truth.
 - Use `focus-doc` before drafting any document.
 - Use `response --apply` to write accepted structured answers back into context.
 - Use `post_apply_plan` as the default continuation source after apply.
@@ -95,6 +97,8 @@ Ask one narrow clarification question when:
 - response validation ends in `unresolved`
 
 Avoid broad exploratory questioning when the missing context is explicit.
+
+If the user asks to update or refresh existing documentation broadly, do not re-ask structural questions first when `update` can infer them safely.
 
 ## Freshness Rules
 

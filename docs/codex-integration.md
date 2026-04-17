@@ -38,6 +38,7 @@ The Codex skill should:
 
 - detect whether AgentSkeleton should be activated
 - choose `init-docs` versus `reshape-docs`
+- choose `update` when existing documentation should be broadly refreshed from current repository truth
 - use `plan` as the workflow snapshot
 - use `focus-doc` as the drafting package source
 - use `response --apply` for write-back

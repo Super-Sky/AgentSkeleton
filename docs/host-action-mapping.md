@@ -111,6 +111,18 @@ Why:
 
 - `focus-doc` is the authoritative drafting package for the current priority or requested document
 
+### Case 3A: User Wants To Refresh Existing Documentation From Current Repository Truth
+
+Host action:
+
+- run `update`
+- then continue from the returned `post_update_plan`
+
+Why:
+
+- broad documentation refresh work should first absorb safe repository facts that can be inferred without another confirmation round
+- this avoids re-asking structural questions that the repository can already answer
+
 ### Case 4: Host Receives Structured Answers From Conversation
 
 Host action:
@@ -178,6 +190,11 @@ When the user requests a specific document, the host should:
 - check readiness and missing context
 - only proceed if the package is draftable or the user has accepted placeholder-driven drafting
 
+When the user requests a broad documentation refresh instead of a single document, the host should:
+
+- prefer `update` first if context already exists
+- use the refreshed plan before choosing the next draft target
+
 ## Review Candidate Rules
 
 `review_candidates` should be treated as temporary convergence work.
@@ -234,13 +251,14 @@ The default host behavior should be:
 
 1. detect whether AgentSkeleton is active or should be activated
 2. initialize with `init-docs` or `reshape-docs` if needed
-3. run `plan`
-4. if clarification is blocking, ask the next high-value question
-5. otherwise run `focus-doc`
-6. draft or update the target document
-7. normalize structured answers and run `response --apply`
-8. continue from `post_apply_plan`
-9. revisit review candidates only when the latest change batch requires convergence
+3. if the task is a broad documentation refresh and context already exists, run `update`
+4. otherwise run `plan`
+5. if clarification is blocking, ask the next high-value question
+6. otherwise run `focus-doc`
+7. draft or update the target document
+8. normalize structured answers and run `response --apply`
+9. continue from `post_apply_plan`
+10. revisit review candidates only when the latest change batch requires convergence
 
 ## Escalation Rules
 
