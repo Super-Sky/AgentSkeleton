@@ -28,6 +28,8 @@ func Run(args []string) error {
 		return runFocusDoc(args[1:])
 	case "workflow":
 		return runWorkflow(args[1:])
+	case "update":
+		return runUpdate(args[1:])
 	case "version", "-v", "--version":
 		return runVersion(args[1:])
 	case "help", "-h", "--help":
@@ -57,6 +59,7 @@ Usage:
   agentskeleton prompt [flags]
   agentskeleton focus-doc [flags]
   agentskeleton workflow [flags]
+  agentskeleton update [flags]
   agentskeleton version [flags]
 
 Flags:

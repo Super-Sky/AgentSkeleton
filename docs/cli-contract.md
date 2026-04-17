@@ -92,6 +92,7 @@ Initial command areas:
 - `prompt`
 - `focus-doc`
 - `workflow`
+- `update`
 
 This contract defines `plan` and `next` first.
 
@@ -189,6 +190,35 @@ Produce a document drafting context package for the current priority document, o
 - writing rules
 - generated documents that should likely be reviewed after this draft narrows shared context
 - next actions after the draft is produced
+
+## `update`
+
+### Purpose
+
+Refresh an existing context using safe repository facts that can be inferred without another confirmation round.
+
+### Input
+
+- existing context file
+- repository root
+- optional output directory
+
+### Output Requirements
+
+`update` should return:
+
+- whether context was updated
+- which values were safely inferred
+- a refreshed `post_update_plan`
+
+### Initial Intended Scope
+
+For the current release track, `update` is primarily intended for legacy repositories and should only infer narrow structure facts such as:
+
+- `undocumented_directories`
+- `current_layout_summary`
+
+It should not guess ambiguous business facts.
 
 ## Change Batch Model
 

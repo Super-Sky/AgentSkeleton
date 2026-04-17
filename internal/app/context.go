@@ -125,7 +125,17 @@ func (c *Context) applyAnswer(questionID, value string) {
 			Value: value,
 		})
 	}
+	c.syncDerivedField(questionID, value)
 	c.Conversation.OpenQuestions = removeString(c.Conversation.OpenQuestions, questionID)
+}
+
+func (c *Context) syncDerivedField(questionID, value string) {
+	switch questionID {
+	case "project_summary":
+		c.Project.Summary = value
+	case "current_layout_summary":
+		c.Structure.CurrentLayoutSummary = value
+	}
 }
 
 func (c *Context) markGenerated(paths []string) {

@@ -92,6 +92,7 @@ changes:
 - `prompt`
 - `focus-doc`
 - `workflow`
+- `update`
 
 这个协议优先定义 `plan` 和 `next`。
 
@@ -189,6 +190,35 @@ next_actions:
 - 写作规则
 - 在这份文档起草后，哪些已生成文档大概率需要回看收敛
 - 起草完成后的下一步动作
+
+## `update`
+
+### 目的
+
+在不需要再次确认的前提下，基于仓库中可安全推断的事实刷新已有 context。
+
+### 输入
+
+- 已存在的上下文文件
+- 仓库根目录
+- 可选输出目录
+
+### 输出要求
+
+`update` 应返回：
+
+- context 是否被更新
+- 哪些值是安全推断出来的
+- 刷新的 `post_update_plan`
+
+### 当前预期范围
+
+在当前发布路径中，`update` 主要面向 legacy 仓库，只应推断狭窄的结构事实，例如：
+
+- `undocumented_directories`
+- `current_layout_summary`
+
+它不应猜测存在歧义的业务事实。
 
 ## 变更批次模型
 

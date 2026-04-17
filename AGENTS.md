@@ -32,6 +32,11 @@ This project exists to help users:
 - Keep agent-specific guidance minimal and explicit.
 - Avoid hidden conventions that are not written in the repository.
 - Host integration rules belong in `docs/host-integration.md`.
+- Read current truth before version snapshots:
+  - `docs/current-capabilities.md`
+  - `docs/features/README.md`
+  - `docs/README.md`
+- Shared workflow truth lives in `docs/*`; skills are thin entry layers.
 
 ## Implementation Direction
 

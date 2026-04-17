@@ -108,6 +108,12 @@ make smoke
 ./agentskeleton version --format json
 ```
 
+如果希望基于仓库现有事实刷新上下文，而不重复确认同一轮结构信息，可执行：
+
+```bash
+./agentskeleton update --project /path/to/project --output-dir /path/to/output --format json
+```
+
 仓库同时已经包含用于 CI 和 tag 发布构建的 GitHub Actions workflow，位于 `.github/workflows/`。
 
 ## v0.1.0 方向
@@ -125,6 +131,16 @@ make smoke
 - `docs/v0.1.0-gap-analysis.zh-CN.md`
 - `docs/v0.1.0-implementation-plan.zh-CN.md`
 - `docs/known-limitations.zh-CN.md`
+
+## 阅读顺序
+
+默认阅读顺序如下：
+
+1. `docs/current-capabilities.zh-CN.md`
+2. `docs/features/README.zh-CN.md`
+3. `docs/README.zh-CN.md`
+
+只有在需要版本快照时，再进入发布路径文档。
 
 ## 仓库结构
 
@@ -150,6 +166,7 @@ CLI 预期会成为用户的主要入口。首批命令方向包括：
 - `response`：校验/评估模型输出，并可将合法答案写回上下文
 - `prompt`：基于上下文生成初始提示或修复提示
 - `workflow`：执行一轮打包流程（`plan + prompt + next`），可选写回模型返回，并可通过 `--write-plan-files` 落地当前支持的计划文档、通过 `--auto-repair` 输出重试修复包、通过 `--persist-trace` 保存过程快照
+- `update`：基于仓库现有事实安全推断上下文更新，并直接刷新计划，避免再次确认同一轮结构信息
 - `plan` 和 `workflow` 现在会输出 `current_priority`，方便宿主模型知道下一份应优先起草的文档
 - `focus-doc` 会把这份优先文档展开成起草上下文包，而 `review_candidates` 用于提示哪些已生成文档需要回溯收敛
 - `focus-doc` 还会返回 `review_after_draft`，把“往前起草”和“往后收敛”放进同一个动作包里

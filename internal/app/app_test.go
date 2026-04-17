@@ -1293,6 +1293,111 @@ func TestRunResponseApplyRejectsExamplePathByDefault(t *testing.T) {
 	}
 }
 
+func TestRunUpdateLegacyInfersStructureFields(t *testing.T) {
+	root := t.TempDir()
+	projectDir := filepath.Join(root, "project")
+	outputDir := filepath.Join(root, "output")
+
+	if err := os.MkdirAll(filepath.Join(projectDir, "services"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(projectDir, "router"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(projectDir, "go.mod"), []byte("module example.com/test\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(projectDir, "main.go"), []byte("package main\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := runReshapeDocs([]string{
+		"--project", projectDir,
+		"--output-dir", outputDir,
+		"--name", "LegacyRepo",
+		"--summary", "legacy service",
+		"--format", "json",
+	}); err != nil {
+		t.Fatalf("runReshapeDocs() error = %v", err)
+	}
+
+	output := captureStdout(t, func() {
+		if err := runUpdate([]string{
+			"--project", projectDir,
+			"--output-dir", outputDir,
+			"--format", "json",
+		}); err != nil {
+			t.Fatalf("runUpdate() error = %v", err)
+		}
+	})
+
+	if !strings.Contains(output, "\"context_updated\": true") {
+		t.Fatalf("update output missing context_updated: %s", output)
+	}
+	if !strings.Contains(output, "\"undocumented_directories\"") {
+		t.Fatalf("update output missing undocumented_directories: %s", output)
+	}
+	if !strings.Contains(output, "\"post_update_plan\"") {
+		t.Fatalf("update output missing post_update_plan: %s", output)
+	}
+
+	ctx, err := loadContext(filepath.Join(outputDir, ".agentskeleton", "context.yaml"))
+	if err != nil {
+		t.Fatalf("loadContext() error = %v", err)
+	}
+	if answeredValue(ctx, "undocumented_directories") == "" {
+		t.Fatalf("expected undocumented_directories to be inferred")
+	}
+	if answeredValue(ctx, "current_layout_summary") == "" {
+		t.Fatalf("expected current_layout_summary to be inferred")
+	}
+	if ctx.Structure.CurrentLayoutSummary == "" {
+		t.Fatalf("expected structure.current_layout_summary to be synchronized")
+	}
+	if slices.Contains(ctx.Conversation.OpenQuestions, "undocumented_directories") {
+		t.Fatalf("undocumented_directories should be removed from open questions")
+	}
+}
+
+func TestBuildPlanOutputUsesSynchronizedLayoutSummary(t *testing.T) {
+	t.Parallel()
+
+	ctx := Context{
+		Version: "v0.0.0",
+		Paths: Paths{
+			OutputDir: "/tmp/project",
+		},
+		Project: Project{
+			Name: "LegacyRepo",
+			Mode: "legacy",
+		},
+		Documentation: Documentation{
+			Phase:          "planning",
+			ReleaseVersion: "v0.0.0",
+			GeneratedDocs:  []string{"docs/legacy-structure-inventory.md"},
+		},
+		Structure: Structure{
+			Strategy:             "existing",
+			CurrentLayoutSummary: "Go repository with main.go at repo root.",
+		},
+		Conversation: Conversation{
+			AnsweredQuestions: []QuestionAnswer{
+				{ID: "undocumented_directories", Value: "services,router"},
+				{ID: "current_layout_summary", Value: "Go repository with main.go at repo root."},
+			},
+			OpenQuestions: []string{"active_release_docs_strategy", "ownership_model"},
+		},
+	}
+
+	out := buildPlanOutput(ctx)
+	if out.CurrentPriority == nil {
+		t.Fatalf("current_priority should not be nil")
+	}
+	if out.CurrentPriority.Path != "docs/domain-overview.md" {
+		t.Fatalf("current_priority.path = %q, want docs/domain-overview.md", out.CurrentPriority.Path)
+	}
+}
+
 func TestRunVersionYAML(t *testing.T) {
 	originalVersion, originalCommit, originalDate := Version, Commit, Date
 	Version, Commit, Date = "v0.1.0", "abc1234", "2026-04-09"

@@ -108,6 +108,12 @@ To inspect the built CLI version:
 ./agentskeleton version --format json
 ```
 
+To refresh existing context from repository facts without asking the same structural questions again:
+
+```bash
+./agentskeleton update --project /path/to/project --output-dir /path/to/output --format json
+```
+
 The repository also includes GitHub Actions workflows for CI and tagged release builds under `.github/workflows/`.
 
 ## v0.1.0 Direction
@@ -125,6 +131,26 @@ See these docs for the current release-track definition:
 - `docs/v0.1.0-gap-analysis.md`
 - `docs/v0.1.0-implementation-plan.md`
 - `docs/known-limitations.md`
+
+## Reading Order
+
+Default reading order for current repository truth:
+
+1. `docs/current-capabilities.md`
+2. `docs/features/README.md`
+3. `docs/README.md`
+
+Use release-track docs only when you need a version snapshot rather than the current repository state.
+
+## Reading Order
+
+Default reading order for current repository truth:
+
+1. `docs/current-capabilities.md`
+2. `docs/features/README.md`
+3. `docs/README.md`
+
+Use release-track docs only when you need a version snapshot rather than the current repository state.
 
 ## Repository Layout
 
@@ -150,6 +176,7 @@ The CLI is expected to become the main entry point for users. Initial command ar
 - `response`: validate/evaluate model output and optionally apply accepted answers
 - `prompt`: generate initial or repair prompts from context
 - `workflow`: run one bundled step (`plan + prompt + next`) with optional response apply, planned file materialization via `--write-plan-files`, retry repair packaging via `--auto-repair`, and process snapshots via `--persist-trace`
+- `update`: infer safe context updates from the existing repository and refresh the plan without another confirmation round
 - `plan` and `workflow` now expose `current_priority` so the host model knows which document should be drafted next
 - `focus-doc` turns that priority into a drafting context package, while `review_candidates` expose backtracking work for already-generated documents
 - `focus-doc` also exposes `review_after_draft`, so forward drafting and backward convergence are planned together

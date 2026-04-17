@@ -62,6 +62,7 @@ The following commands should be considered provisional:
 - `prompt`
 - `response` without `--apply`
 - `workflow`
+- `update`
 
 These are useful, but they should not be treated as the narrowest stable host contract yet.
 

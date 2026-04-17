@@ -62,6 +62,7 @@
 - `prompt`
 - `response`（不带 `--apply`）
 - `workflow`
+- `update`
 
 它们是有用能力，但当前还不应被视为最窄、最稳定的宿主契约。
 
